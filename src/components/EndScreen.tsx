@@ -22,11 +22,11 @@ import {
 export function EndScreen() {
   const phase = useStore((s) => s.phase);
 
-  // Evaluate the completion selector for both victory AND defeat — a player
-  // who resolved 100 % of visited rooms but lost to the main boss deserves
-  // to know about Orzag too (and can still challenge him).
+  // Orzag is only reachable via the victory screen — if the player lost the
+  // main boss fight, they get the plain burn-out screen regardless of how
+  // many rooms they cleared.
   const secretUnlocked = useStore((s) =>
-    (s.phase === 'victory' || s.phase === 'defeat') ? isRunFullyResolved(s) : false,
+    s.phase === 'victory' ? isRunFullyResolved(s) : false,
   );
 
   if (
@@ -47,14 +47,6 @@ export function EndScreen() {
           Les tickets ont eu raison de toi. Une réunion rétro s’organise déjà
           sans toi.
         </p>
-        {secretUnlocked && (
-          <>
-            <p className="end-secret-hint">{SECRET_HINT}</p>
-            <button type="button" onClick={() => store.set({ phase: 'secret-intro' })}>
-              Affronter la menace
-            </button>
-          </>
-        )}
         <button type="button" onClick={() => store.reset()}>
           Recommencer une run
         </button>
@@ -72,17 +64,18 @@ export function EndScreen() {
           ferment. Les imprimantes s’apaisent. L’open space respire — pour la
           première fois depuis des générations de stagiaires.
         </p>
-        {secretUnlocked && (
+        {secretUnlocked ? (
           <>
             <p className="end-secret-hint">{SECRET_HINT}</p>
             <button type="button" onClick={() => store.set({ phase: 'secret-intro' })}>
               Affronter la menace
             </button>
           </>
+        ) : (
+          <button type="button" onClick={() => store.reset()}>
+            Recommencer une run
+          </button>
         )}
-        <button type="button" onClick={() => store.reset()}>
-          Recommencer une run
-        </button>
       </div>
     );
   }
