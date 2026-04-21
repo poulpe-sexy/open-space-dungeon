@@ -13,7 +13,7 @@ export const HEROES: Record<HeroId, Hero> = {
     stats: { atk: 8, mag: 2, hp: 18 },
     portrait: HERO_PORTRAITS.marine,
     tint: HERO_TINT.marine,
-    tag: ‘Guerrière de choc, elle délivre de l’impact, surtout dans tes dents.’,
+    tag: "Guerrière de choc, elle délivre de l’impact, surtout dans tes dents.",
     attacks: ['impact', 'choc', 'reframe'],
   },
   alphonse: {
@@ -23,7 +23,7 @@ export const HEROES: Record<HeroId, Hero> = {
     stats: { atk: 5, mag: 5, hp: 15 },
     portrait: HERO_PORTRAITS.alphonse,
     tint: HERO_TINT.alphonse,
-    tag: 'Combattant polyvalent, ses sarcasmes affûtés ont déjà rendu fou plus d'un adversaire.',
+    tag: "Combattant polyvalent, ses sarcasmes affûtés ont déjà rendu fou plus d'un adversaire.",
     attacks: ['charme', 'reframe', 'techno_boom_boom'],
   },
   laurent: {
@@ -33,7 +33,7 @@ export const HEROES: Record<HeroId, Hero> = {
     stats: { atk: 2, mag: 9, hp: 12 },
     portrait: HERO_PORTRAITS.laurent,
     tint: HERO_TINT.laurent,
-    tag: 'Mage redoutable, dont les savoirs font trembler l'architecture même du donjon.',
+    tag: "Mage redoutable, dont les savoirs font trembler l'architecture même du donjon.",
     attacks: ['apnee', 'figuier_etrangleur', 'decommissionnement'],
   },
 };
