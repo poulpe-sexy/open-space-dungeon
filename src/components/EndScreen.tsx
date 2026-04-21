@@ -40,69 +40,49 @@ export function EndScreen() {
 
   // ── Defeat ───────────────────────────────────────────────────────────────
   if (phase === 'defeat') {
-    const engageOrzag = () => store.set({ phase: 'secret-intro' as const });
     return (
       <div className="end-screen defeat">
         <h2>BURN-OUT</h2>
         <p>
-          Les tickets ont eu raison de toi. Une réunion rétro s'organise déjà
+          Les tickets ont eu raison de toi. Une réunion rétro s’organise déjà
           sans toi.
         </p>
         {secretUnlocked && (
           <>
             <p className="end-secret-hint">{SECRET_HINT}</p>
-            <div className="end-actions">
-              <button type="button" onClick={engageOrzag}>
-                Affronter la menace
-              </button>
-              <button type="button" onClick={() => store.reset()}>
-                Recommencer une run
-              </button>
-            </div>
+            <button type="button" onClick={() => store.set({ phase: 'secret-intro' })}>
+              Affronter la menace
+            </button>
           </>
         )}
-        {!secretUnlocked && (
-          <button type="button" onClick={() => store.reset()}>
-            Recommencer une run
-          </button>
-        )}
+        <button type="button" onClick={() => store.reset()}>
+          Recommencer une run
+        </button>
       </div>
     );
   }
 
   // ── Normal victory (with optional secret hint) ──────────────────────────
   if (phase === 'victory') {
-    const engageOrzag = () => {
-      store.set({
-        phase: 'secret-intro',
-      });
-    };
     return (
       <div className="end-screen victory">
         <h2>DOSSIER CLASSÉ SANS SUITE</h2>
         <p>
-          L'Administration a été contresignée, paraphée, archivée. Les guichets
-          ferment. Les imprimantes s'apaisent. L'open space respire — pour la
+          L’Administration a été contresignée, paraphée, archivée. Les guichets
+          ferment. Les imprimantes s’apaisent. L’open space respire — pour la
           première fois depuis des générations de stagiaires.
         </p>
         {secretUnlocked && (
           <>
             <p className="end-secret-hint">{SECRET_HINT}</p>
-            <div className="end-actions">
-              <button type="button" onClick={engageOrzag}>
-                Affronter la menace
-              </button>
-              <button type="button" onClick={() => store.reset()}>
-                Recommencer une run
-              </button>
-            </div>
+            <button type="button" onClick={() => store.set({ phase: 'secret-intro' })}>
+              Affronter la menace
+            </button>
           </>
         )}
-        {!secretUnlocked && (
-          <button type="button" onClick={() => store.reset()}>
-            Recommencer une run
-          </button>
-        )}
+        <button type="button" onClick={() => store.reset()}>
+          Recommencer une run
+        </button>
       </div>
     );
   }
