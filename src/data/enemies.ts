@@ -1,4 +1,5 @@
 import type { Enemy } from './types';
+import { ORZAG_POWER_MULT } from '../game/balance';
 
 /**
  * Some enemies (currently only Orzag, the hidden boss) ship with a dedicated
@@ -24,6 +25,10 @@ export interface EnemyWithPortrait extends Enemy {
  *
  * Damage formula at combat time: round(stats.atk * (0.9 + rand*0.2)).
  * `attackNames` is purely flavor, displayed in the combat log.
+ *
+ * Balance note: the mid-tier enemies were left untouched — they read as
+ * correctly scaled (an L1 hero takes 3–7 damage per hit, manageable). Only
+ * the final boss and Orzag moved. See `docs/balance.md`.
  */
 export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_hesitant: {
@@ -96,10 +101,15 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
     description: "Sourit. Cite Sun Tzu. T'ignore poliment.",
     attackNames: ['Respiration consciente', 'Citation zen'],
   },
+  // ─── Final boss ────────────────────────────────────────────────────────────
+  // Rebalanced from 13 / 12 / 55 → 11 / 10 / 60. The old 13-damage swing
+  // one-shot Laurent (HP 12) and two-shot Marine/Alphonse at level 1, forcing
+  // a mandatory L6–L7 before a fair fight. New profile: slightly tankier
+  // (longer fight = more drama), slightly softer hits (L4–L5 survivable).
   client_legendaire: {
     id: 'client_legendaire',
     name: "l'Administration",
-    stats: { atk: 13, mag: 12, hp: 55 },
+    stats: { atk: 11, mag: 10, hp: 60 },
     difficulty: 'boss',
     rewardXp: 60,
     color: 0xff5a5a,
@@ -119,19 +129,22 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   // lives outside SCREENS, dataIntegrity.ts never walks into him — which is
   // by design.
   //
-  // Stats derivation (ORZAG_POWER_MULT = 2):
-  //   base = client_legendaire  → atk 13 · mag 12 · hp 55
-  //   orzag = base × 2          → atk 26 · mag 24 · hp 110
-  // Keep this 2× rule documented in docs/secret-ending.md. Tuning Orzag's
-  // difficulty = edit these three numbers. The flat doubling keeps the ratio
-  // between physical and magical threat identical to the main boss — any
-  // hero build that beat the Administration has a fighting chance here.
+  // Stat rule: Orzag = client_legendaire × ORZAG_POWER_MULT (currently 2).
+  //   base  = 11 / 10 / 60
+  //   orzag = 22 / 20 / 120
+  // The rule is asserted by `balance.test.ts` — if you re-tune the main boss
+  // the test will nag you to re-derive Orzag, keeping the 2× promise honest.
+  // Reward XP bumped to 150 — beating Orzag is the true ending, worth more.
   orzag_coeur_pierre: {
     id: 'orzag_coeur_pierre',
     name: 'Orzag Cœur de Pierre',
-    stats: { atk: 26, mag: 24, hp: 110 }, // client_legendaire × 2
+    stats: {
+      atk: 11 * ORZAG_POWER_MULT,
+      mag: 10 * ORZAG_POWER_MULT,
+      hp:  60 * ORZAG_POWER_MULT,
+    },
     difficulty: 'boss',
-    rewardXp: 120,
+    rewardXp: 150,
     color: 0x2a2d36, // anthracite / basalt grey
     description:
       "Un petit chat gris aux yeux jaunes. Il ne cligne pas. Il ne miaule qu'une fois.",

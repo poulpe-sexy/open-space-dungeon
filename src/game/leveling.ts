@@ -5,18 +5,17 @@
 
 import type { Hero } from '../data/types';
 import { deriveMaxMp } from '../data/heroes';
+import { XP_PER_LEVEL_BASE, STAT_GAIN_PER_LEVEL as BALANCE_STAT_GAIN } from './balance';
 
-/** XP needed to go from `level` to `level + 1`. Linear — trivial to tune. */
+/** XP needed to go from `level` to `level + 1`. Linear — trivial to tune.
+ *  Base value lives in `src/game/balance.ts`. */
 export function xpToNextLevel(level: number): number {
-  return level * 10;
+  return level * XP_PER_LEVEL_BASE;
 }
 
-/** Flat per-level stat gains. Tweak here to rebalance the whole curve. */
-export const STAT_GAIN_PER_LEVEL = {
-  atk: 1,
-  mag: 1,
-  hp:  3,
-} as const;
+/** Re-exported from `src/game/balance.ts` — kept here for backward-compat and
+ *  to shorten import paths at call sites inside `leveling.ts` consumers. */
+export const STAT_GAIN_PER_LEVEL = BALANCE_STAT_GAIN;
 
 export interface LevelUpResult {
   /** New level after absorbing the XP. */

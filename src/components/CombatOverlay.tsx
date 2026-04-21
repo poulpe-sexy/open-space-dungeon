@@ -7,7 +7,7 @@ import { bus } from '../game/bus';
 import { audio } from '../game/audio';
 import type { SfxKey } from '../game/audio';
 import { encounterKey, store, useStore } from '../game/store';
-import { applyXpGain } from '../game/leveling';
+import { applyXpGain, STAT_GAIN_PER_LEVEL } from '../game/leveling';
 import { HeroPortrait } from './HeroPortrait';
 import { TileSprite } from './TileSprite';
 
@@ -185,9 +185,9 @@ export function CombatOverlay() {
             kind: 'info',
             text:
               `✦ NIVEAU ${result.level} ! ` +
-              `ATK +${result.levelsGained * 1}, ` +
-              `MAG +${result.levelsGained * 1}, ` +
-              `PV +${result.levelsGained * 3}. ` +
+              `ATK +${result.levelsGained * STAT_GAIN_PER_LEVEL.atk}, ` +
+              `MAG +${result.levelsGained * STAT_GAIN_PER_LEVEL.mag}, ` +
+              `PV +${result.levelsGained * STAT_GAIN_PER_LEVEL.hp}. ` +
               `PV & MP entièrement restaurés !`,
           });
         }

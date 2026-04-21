@@ -28,6 +28,7 @@ import type { GameState } from './store';
 import type { ScreenEncounter } from '../data/types';
 import { SCREENS } from '../data/screens';
 import { encounterKey } from './store';
+import { ORZAG_POWER_MULT as BALANCE_ORZAG_MULT } from './balance';
 
 /** Inserted verbatim into the victory screen when the secret is unlocked. */
 export const SECRET_HINT =
@@ -43,11 +44,10 @@ export const ORZAG_SCREEN_ID = '__orzag__';
 
 /**
  * Multiplier applied to the MAIN boss (`client_legendaire`) to derive
- * Orzag's stats. Raise to make him tougher, lower to make him fairer.
- * The actual numbers live in `src/data/enemies.ts` — this constant is
- * informational / used by `docs/secret-ending.md`.
+ * Orzag's stats. Source of truth: `src/game/balance.ts`. Re-exported here so
+ * existing call sites (docs, tests, the enemies table) keep working.
  */
-export const ORZAG_POWER_MULT = 2;
+export const ORZAG_POWER_MULT = BALANCE_ORZAG_MULT;
 
 /**
  * Is every encounter in every room the player has visited resolved?

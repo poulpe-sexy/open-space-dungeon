@@ -6,6 +6,7 @@
 // =============================================================================
 
 import type { Hero, HeroClass, EncounterKind, Difficulty } from '../data/types';
+import { DIFFICULTY_THRESHOLDS } from './balance';
 
 /**
  * Riddles run through their own overlay (RiddleOverlay) — deterministic
@@ -15,12 +16,9 @@ import type { Hero, HeroClass, EncounterKind, Difficulty } from '../data/types';
 export type ResolvableKind = Exclude<EncounterKind, 'riddle'>;
 
 // ── Difficulty thresholds ─────────────────────────────────────────────────────
-export const THRESHOLDS: Record<Difficulty, number> = {
-  easy:   4,
-  normal: 6,
-  hard:   9,
-  boss:   12,
-};
+// Re-exported from `src/game/balance.ts` so callers that already import from
+// `resolution.ts` (tests, UI) keep working without a churn diff.
+export const THRESHOLDS: Record<Difficulty, number> = DIFFICULTY_THRESHOLDS;
 
 // ── Class bonuses ─────────────────────────────────────────────────────────────
 // Reflects each archetype's strengths across encounter types.
