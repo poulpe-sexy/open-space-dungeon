@@ -22,10 +22,11 @@ import {
 export function EndScreen() {
   const phase = useStore((s) => s.phase);
 
-  // Evaluate the completion selector only when the victory screen mounts — it
-  // walks visitedRooms once and is cheap. No memoization needed.
+  // Evaluate the completion selector for both victory AND defeat — a player
+  // who resolved 100 % of visited rooms but lost to the main boss deserves
+  // to know about Orzag too (and can still challenge him).
   const secretUnlocked = useStore((s) =>
-    s.phase === 'victory' ? isRunFullyResolved(s) : false,
+    (s.phase === 'victory' || s.phase === 'defeat') ? isRunFullyResolved(s) : false,
   );
 
   if (
@@ -39,16 +40,32 @@ export function EndScreen() {
 
   // ── Defeat ───────────────────────────────────────────────────────────────
   if (phase === 'defeat') {
+    const engageOrzag = () => store.set({ phase: 'secret-intro' as const });
     return (
       <div className="end-screen defeat">
         <h2>BURN-OUT</h2>
         <p>
-          Les tickets ont eu raison de toi. Une réunion rétro s’organise déjà
+          Les tickets ont eu raison de toi. Une réunion rétro s'organise déjà
           sans toi.
         </p>
-        <button type="button" onClick={() => store.reset()}>
-          Recommencer une run
-        </button>
+        {secretUnlocked && (
+          <>
+            <p className="end-secret-hint">{SECRET_HINT}</p>
+            <div className="end-actions">
+              <button type="button" onClick={engageOrzag}>
+                Affronter la menace
+              </button>
+              <button type="button" onClick={() => store.reset()}>
+                Recommencer une run
+              </button>
+            </div>
+          </>
+        )}
+        {!secretUnlocked && (
+          <button type="button" onClick={() => store.reset()}>
+            Recommencer une run
+          </button>
+        )}
       </div>
     );
   }
