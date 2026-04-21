@@ -1,7 +1,8 @@
 /**
  * TileSprite — pixel-art sprites for dungeon tiles.
  *
- * Player sprites: custom hero PNGs (Alphonse / Laurent / Marine), transparent bg.
+ * Player sprites: animated GIF walk cycles (Marine / Alphonse / Laurent),
+ * decoded at runtime to strip the solid backdrop to real transparency.
  * Encounter sprites: 4-frame animated 16×16 assets from the asset pack.
  *
  * Usage:
@@ -10,7 +11,9 @@
  *   <TileSprite kind="boss" size={64} />
  */
 
+import { HERO_WALK_GIF, type HeroId } from '../game/assets';
 import type { EncounterKind, HeroClass } from '../data/types';
+import { AnimatedGifSprite } from './AnimatedGifSprite';
 import { AnimatedSprite } from './AnimatedSprite';
 
 export type SpriteKind = EncounterKind | 'door' | 'player' | 'boss';
@@ -45,12 +48,19 @@ const SPRITE_FRAMES: Record<Exclude<SpriteKind, 'player'>, string[]> = {
   door:   f4('door'),     // key
 };
 
-// ── Player sprites — one PNG per hero (static, transparent background) ────────
+// ── Player sprites — one animated walk GIF per hero, with the static tile PNG
+//     as fallback during decode / on decode failure. ───────────────────────────
 
 const PLAYER_SPRITE: Record<HeroClass, string> = {
   Choc:     `${A}/player_choc.png`,    // Marine   — Choc
   Roublard: `${A}/player_classe.png`,  // Alphonse — Roublard (filename kept for asset stability)
   Sage:     `${A}/player_sage.png`,    // Laurent  — Sage
+};
+
+const CLASS_TO_HERO: Record<HeroClass, HeroId> = {
+  Choc: 'marine',
+  Roublard: 'alphonse',
+  Sage: 'laurent',
 };
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -72,8 +82,9 @@ export function TileSprite({
     // Callers can pass a different size for portraits etc.
     const h = size === 32 ? 48 : size;
     return (
-      <img
-        src={PLAYER_SPRITE[heroClass]}
+      <AnimatedGifSprite
+        src={HERO_WALK_GIF[CLASS_TO_HERO[heroClass]]}
+        fallbackSrc={PLAYER_SPRITE[heroClass]}
         style={{
           imageRendering: 'pixelated',
           height: `${h}px`,
@@ -88,8 +99,6 @@ export function TileSprite({
           filter: `drop-shadow(0 0 6px ${tint ?? 'var(--accent)'})`,
           zIndex: 2,
         }}
-        aria-hidden
-        alt=""
       />
     );
   }

@@ -28,6 +28,18 @@ export const HERO_PORTRAITS: Record<HeroId, string> = {
 };
 
 /**
+ * Walking-cycle GIFs used on the dungeon tile map. Decoded once at runtime by
+ * `AnimatedGifSprite` (bbox-crop + chroma-key) so the solid backdrops in the
+ * source GIFs come out with real transparency. `HERO_PORTRAITS` remains the
+ * static fallback while the GIF decodes.
+ */
+export const HERO_WALK_GIF: Record<HeroId, string> = {
+  marine: asset('assets/characters/marine.gif'),
+  alphonse: asset('assets/characters/alphonse.gif'),
+  laurent: asset('assets/characters/laurent.gif'),
+};
+
+/**
  * Class tint used as accent color AND as fallback background when the PNG is
  * missing (HeroPortrait falls back to initial + tint).
  */
