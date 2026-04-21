@@ -5,13 +5,8 @@ import { KEY_ITEMS } from '../data/keyItems';
 import { xpToNextLevel } from '../game/leveling';
 const BOSS_ROOMS_NEEDED = 10;
 import { HeroPortrait } from './HeroPortrait';
-import { AudioPanel } from './AudioPanel';
 
-interface HudProps {
-  onToggleHelp: () => void;
-}
-
-export function Hud({ onToggleHelp }: HudProps) {
+export function Hud() {
   const hero     = useStore((s) => s.hero);
   const hp       = useStore((s) => s.hp);
   const mp       = useStore((s) => s.mp);
@@ -59,16 +54,6 @@ export function Hud({ onToggleHelp }: HudProps) {
         {bossOpen ? '💀' : '🏢'} {Math.min(visited, BOSS_ROOMS_NEEDED)}/{BOSS_ROOMS_NEEDED}
       </div>
       <div className="hud-chip" style={{ marginLeft: 'auto' }}>{screen?.title ?? ''}</div>
-      <button
-        type="button"
-        className="htp-hud-btn"
-        onClick={onToggleHelp}
-        title="Comment jouer"
-        aria-label="Comment jouer"
-      >
-        ?
-      </button>
-      <AudioPanel />
     </div>
   );
 }
