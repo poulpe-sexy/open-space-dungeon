@@ -2,15 +2,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Base path for GitHub Pages. The site is served from
-// https://<user>.github.io/<repo>/ so every absolute asset URL must be
-// prefixed with the repo name. Keep this in sync with the repo name —
-// if you rename the repo on GitHub, update this constant and the deploy
-// workflow.
-const BASE = '/open-space-dungeon/';
-
+// No `base` override — Vercel (and the local dev server) serve the site from
+// `/`, which makes `import.meta.env.BASE_URL === '/'`. The code keeps using
+// `${BASE_URL}assets/...` for portability : if we ever redeploy under a
+// subpath, just set `base: '/subpath/'` here and nothing else has to change.
 export default defineConfig({
-  base: BASE,
   plugins: [react()],
   server: { port: 5190, host: true, strictPort: true },
   test: {
