@@ -248,9 +248,48 @@ export function generateAllEncounters(
       ...openFloor.slice(0, remaining),
     ];
 
-    result[screen.id] = picks.map(([x, y]) =>
+    const encs: ScreenEncounter[] = picks.map(([x, y]) =>
       makeEncounter(x, y, pool, rng, riddleStack),
     );
+
+    // ── Guarantee at least one combat encounter per room ─────────────────
+    // If the random draw produced zero combats, force one.
+    // 60 % chance: placed on the interior floor cell in front of an exit.
+    // 40 % chance: placed on any remaining open floor tile.
+    if (!encs.some((e) => e.kind === 'combat')) {
+      const usedSet = new Set(picks.map(([x, y]) => `${x},${y}`));
+
+      // Approach tiles of exits that are still free
+      const doorApproaches: Array<[number, number]> = screen.exits
+        .map((e) => approachTile(e.x, e.y, W, H))
+        .filter(({ x, y }) => tiles[y]?.[x] === 0 && !usedSet.has(`${x},${y}`))
+        .map(({ x, y }): [number, number] => [x, y]);
+
+      // Remaining open floor tiles (excludes all already-used positions)
+      const allOpen = floor.filter(([x, y]) => !usedSet.has(`${x},${y}`));
+
+      let cx = -1;
+      let cy = -1;
+      if (doorApproaches.length > 0 && rng() < 0.6) {
+        [cx, cy] = pick(doorApproaches, rng);
+      } else if (allOpen.length > 0) {
+        [cx, cy] = pick(allOpen, rng);
+      } else if (doorApproaches.length > 0) {
+        // 60 % roll failed but no open floor left — fall back to door approach
+        [cx, cy] = pick(doorApproaches, rng);
+      }
+      // (If cx < 0, the room is completely packed — skip, shouldn't happen.)
+      if (cx >= 0) {
+        encs.push({
+          x: cx, y: cy,
+          kind: 'combat',
+          enemyId: pick(pool.combat, rng),
+          once: true,
+        });
+      }
+    }
+
+    result[screen.id] = encs;
   }
 
   return result;

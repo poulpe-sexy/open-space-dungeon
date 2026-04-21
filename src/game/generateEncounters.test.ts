@@ -64,6 +64,17 @@ describe('generateAllEncounters', () => {
     }
   });
 
+  it('every non-boss room has at least one combat encounter', () => {
+    for (const seed of [1, 42, 555, 1234, 9001]) {
+      const gen = generateAllEncounters(seed);
+      for (const screen of Object.values(SCREENS)) {
+        if (screen.isBossScreen) continue;
+        const hasCombat = gen[screen.id].some((e) => e.kind === 'combat');
+        expect(hasCombat, `${screen.id} (seed ${seed}) a zero combat`).toBe(true);
+      }
+    }
+  });
+
   it('a riddle never appears more than once across a run', () => {
     // Try several seeds — if dedupe is broken, at least one will duplicate.
     for (const seed of [1, 42, 1234, 9001, 2024]) {
