@@ -9,6 +9,8 @@ import {
   ORZAG_POWER_MULT,
   MAIN_BOSS_REFERENCE,
   BOSS_ROOMS_NEEDED,
+  T3_COOLDOWN,
+  T1_MP_GAIN,
 } from './balance';
 import { xpToNextLevel } from './leveling';
 import { addDiscoveredRoom } from './store';
@@ -107,6 +109,72 @@ describe('hero attack kits', () => {
   });
 });
 
+// ── Attack structure — anti-spam pass ──────────────────────────────────────
+
+describe('attack anti-spam constraints', () => {
+  /** Return the T1/T2/T3 attack object for a given hero. */
+  const tierOf = (heroId: keyof typeof HEROES, tier: 1 | 2 | 3) => {
+    const hero = HEROES[heroId];
+    return hero.attacks.map((id) => ATTACKS[id]).find((a) => a?.tier === tier)!;
+  };
+
+  it('all T3 attacks have cooldown = T3_COOLDOWN (currently 2)', () => {
+    for (const hero of Object.values(HEROES)) {
+      const t3 = tierOf(hero.id as keyof typeof HEROES, 3);
+      expect(t3.cooldown).toBe(T3_COOLDOWN);
+    }
+  });
+
+  it('all T1 attacks recover mpGain MP on use (= T1_MP_GAIN, currently 1)', () => {
+    for (const hero of Object.values(HEROES)) {
+      const t1 = tierOf(hero.id as keyof typeof HEROES, 1);
+      expect(t1.mpGain).toBe(T1_MP_GAIN);
+    }
+  });
+
+  it('T3 costs more MP than T2 for every hero', () => {
+    for (const hero of Object.values(HEROES)) {
+      const t2 = tierOf(hero.id as keyof typeof HEROES, 2);
+      const t3 = tierOf(hero.id as keyof typeof HEROES, 3);
+      expect(t3.cost).toBeGreaterThan(t2.cost);
+    }
+  });
+
+  it('T2 costs more MP than T1 for every hero', () => {
+    // T1 is always free (cost 0) — T2 must cost something to justify the power gap.
+    for (const hero of Object.values(HEROES)) {
+      const t1 = tierOf(hero.id as keyof typeof HEROES, 1);
+      const t2 = tierOf(hero.id as keyof typeof HEROES, 2);
+      expect(t2.cost).toBeGreaterThan(t1.cost);
+    }
+  });
+
+  it('T2 power > T1 power for every hero (T2 is worth spending MP on during a T3 CD)', () => {
+    for (const hero of Object.values(HEROES)) {
+      const t1 = tierOf(hero.id as keyof typeof HEROES, 1);
+      const t2 = tierOf(hero.id as keyof typeof HEROES, 2);
+      expect(t2.power).toBeGreaterThan(t1.power);
+    }
+  });
+
+  it('Marine T3 cost ≤ her base maxMP (can cast once before going dry)', () => {
+    // Marine base MAG = 2 → maxMP = 4. Her T3 must not cost more than that,
+    // otherwise she can never use it at level 1.
+    const marineMaxMp = deriveMaxMp(HEROES.marine);
+    const t3 = tierOf('marine', 3);
+    expect(t3.cost).toBeLessThanOrEqual(marineMaxMp);
+  });
+
+  it('T3_COOLDOWN is 2 (the designed lockout window)', () => {
+    // Pinned: changing this is a deliberate pacing decision, update docs too.
+    expect(T3_COOLDOWN).toBe(2);
+  });
+
+  it('T1_MP_GAIN is 1 (slow but meaningful recovery during CD window)', () => {
+    expect(T1_MP_GAIN).toBe(1);
+  });
+});
+
 // ── Boss / Orzag 2× rule ────────────────────────────────────────────────────
 
 describe('boss balance', () => {
@@ -191,6 +259,11 @@ describe('hero HP floor', () => {
     // the player is expected to arrive at L6. At L6 everyone should survive
     // a worst-case 2-shot from the boss, otherwise the fight becomes a coin
     // flip on turn order. L6 HP = base + 5 × HP-per-level.
+    //
+    // T3-spam pass: boss ATK 12 → 11. With T3 cooldown, the boss now lands
+    // more hits per fight (player is forced into T1/T2 turns). −1 ATK
+    // compensates: worst-case 2-shot = 2 × ceil(11 × 1.1) = 2 × 13 = 26.
+    // Laurent at L6: 14 + 15 = 29 ≥ 26. ✓
     const bossAtk = ENEMIES.client_legendaire.stats.atk;
     const worstTwoShot = Math.ceil(bossAtk * 1.1) * 2;
     for (const hero of Object.values(HEROES)) {

@@ -38,6 +38,18 @@ export interface Attack {
   /** MP cost. 0 means always available. */
   cost: number;
   description: string;
+  /**
+   * Number of enemy turns this attack is locked after use.
+   * Absent / 0 = no cooldown. Used on T3 attacks to prevent spamming.
+   * The player must use T1 or T2 during the lockout window.
+   */
+  cooldown?: number;
+  /**
+   * MP returned to the caster when this attack is used.
+   * Absent / 0 = no recovery. Set to 1 on all T1 attacks so the free filler
+   * doubles as a slow MP-recovery tool during T3 cooldown windows.
+   */
+  mpGain?: number;
 }
 
 // ---------- Heroes -------------------------------------------------------------

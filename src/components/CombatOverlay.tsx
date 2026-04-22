@@ -126,6 +126,13 @@ export function CombatOverlay() {
   const [heroAtkMod,    setHeroAtkMod]    = useState(0);
   const [heroMagMod,    setHeroMagMod]    = useState(0);
 
+  // ── T3 cooldown tracking ─────────────────────────────────────────────────
+  // cooldownsRef: live values mutated during enemy turns — avoids stale-closure
+  // re-trigger on the enemy-turn effect. attackCooldowns: synced state for UI.
+  // Format: { [attackId]: remainingEnemyTurns }  (absent = 0 = available)
+  const cooldownsRef = useRef<Record<string, number>>({});
+  const [attackCooldowns, setAttackCooldowns] = useState<Record<string, number>>({});
+
   const logRef = useRef<HTMLDivElement>(null);
 
   // ── Reset on new combat ──────────────────────────────────────────────────
@@ -140,6 +147,9 @@ export function CombatOverlay() {
     setEnemyAtkBonus(0);
     setHeroAtkMod(0);
     setHeroMagMod(0);
+    // Reset cooldowns
+    cooldownsRef.current = {};
+    setAttackCooldowns({});
 
     const opening: LogLine[] = [
       { kind: 'info', text: `${enemy.name} apparaît. ${enemy.description}` },
@@ -162,6 +172,18 @@ export function CombatOverlay() {
   useEffect(() => {
     if (turn !== 'enemy' || !enemy) return;
     const t = setTimeout(() => {
+      // ── Decrement T3 cooldowns at the start of every enemy turn ──────────
+      // This runs unconditionally (regardless of what the enemy does), so the
+      // cooldown correctly ticks down even on idle/passive turns.
+      const newCooldowns: Record<string, number> = {};
+      for (const [id, cd] of Object.entries(cooldownsRef.current)) {
+        const next = cd - 1;
+        if (next > 0) newCooldowns[id] = next;
+        // cd <= 1 → attack is available again; drop from map (no entry = 0 = unlocked)
+      }
+      cooldownsRef.current = newCooldowns;
+      setAttackCooldowns({ ...newCooldowns });
+
       enemyTurnCountRef.current += 1;
       const turnCount = enemyTurnCountRef.current;
       const sp = enemy.special;
@@ -286,6 +308,9 @@ export function CombatOverlay() {
   const playAttack = (atk: Attack) => {
     if (turn !== 'player') return;
     if (mp < atk.cost) return;
+    // T3 locked during cooldown
+    const cd = cooldownsRef.current[atk.id] ?? 0;
+    if (cd > 0) return;
 
     const rawDmg  = rollHeroDamage(atk, effectiveAtk, effectiveMag);
     // armor: flat reduction per hit (min 1 always)
@@ -295,15 +320,30 @@ export function CombatOverlay() {
     audio.playSfx(TIER_SFX[atk.tier]);
     setEnemyHp(newEnemyHp);
 
+    // MP cost (may be 0 for T1)
     const newMp = Math.max(0, mp - atk.cost);
-    store.set({ mp: newMp });
+    // MP recovery: T1 attacks give back mpGain (capped to maxMp)
+    const recovered = atk.mpGain ?? 0;
+    const finalMp = Math.min(maxMp, newMp + recovered);
+    store.set({ mp: finalMp });
 
-    const armorNote = armorRed > 0 ? ` (armure −${armorRed})` : '';
+    // Set cooldown for T3 attacks
+    if (atk.cooldown) {
+      const updated = { ...cooldownsRef.current, [atk.id]: atk.cooldown };
+      cooldownsRef.current = updated;
+      setAttackCooldowns({ ...updated });
+    }
+
+    // Build log line
+    const armorNote   = armorRed > 0 ? ` (armure −${armorRed})` : '';
+    const costNote    = atk.cost    ? ` (−${atk.cost} MP)` : '';
+    const recoverNote = recovered   ? ` (+${recovered} MP)` : '';
+    const cdNote      = atk.cooldown ? ` [recharge ${atk.cooldown}]` : '';
     setLog((l) => [
       ...l,
       {
         kind: 'player',
-        text: `${hero.name} utilise ${atk.name} — ${dmg} dégâts${armorNote}${atk.cost ? ` (-${atk.cost} MP)` : ''}.`,
+        text: `${hero.name} utilise ${atk.name} — ${dmg} dégâts${armorNote}${costNote}${recoverNote}${cdNote}.`,
       },
     ]);
 
@@ -449,21 +489,33 @@ export function CombatOverlay() {
       </div>
 
       <div className="combat-actions">
-        {attacks.map((atk) => (
-          <button
-            key={atk.id}
-            type="button"
-            disabled={turn !== 'player' || mp < atk.cost}
-            onClick={() => playAttack(atk)}
-            title={atk.description}
-          >
-            <strong>T{atk.tier} · {atk.name}</strong>
-            <small>
-              {atk.kind === 'physical' ? 'PHYS' : 'MAG'} ×{atk.power.toFixed(1)} · {atk.cost} MP
-            </small>
-            <small>{atk.description}</small>
-          </button>
-        ))}
+        {attacks.map((atk) => {
+          const cd = attackCooldowns[atk.id] ?? 0;
+          const locked = cd > 0;
+          return (
+            <button
+              key={atk.id}
+              type="button"
+              disabled={turn !== 'player' || mp < atk.cost || locked}
+              onClick={() => playAttack(atk)}
+              title={atk.description}
+              className={locked ? 'attack-on-cooldown' : undefined}
+            >
+              <strong>T{atk.tier} · {atk.name}</strong>
+              <small>
+                {atk.kind === 'physical' ? 'PHYS' : 'MAG'} ×{atk.power.toFixed(1)}
+                {' · '}{atk.cost} MP
+                {atk.mpGain ? ` · +${atk.mpGain} MP` : ''}
+                {locked
+                  ? ` · ⏳ Recharge : ${cd}`
+                  : atk.cooldown
+                    ? ` · CD ${atk.cooldown}`
+                    : ''}
+              </small>
+              <small>{atk.description}</small>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

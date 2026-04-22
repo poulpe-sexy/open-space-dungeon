@@ -40,7 +40,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_hesitant: {
     id: 'client_hesitant',
     name: 'Client Hésitant',
-    stats: { atk: 3, mag: 1, hp: 9 },
+    stats: { atk: 3, mag: 1, hp: 12 },
     difficulty: 'easy',
     rewardXp: 3,
     color: 0x63e6a1,
@@ -50,7 +50,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_sceptique: {
     id: 'client_sceptique',
     name: 'Client Sceptique',
-    stats: { atk: 4, mag: 2, hp: 11 },
+    stats: { atk: 4, mag: 2, hp: 15 },
     difficulty: 'easy',
     rewardXp: 4,
     color: 0x8a93b8,
@@ -60,7 +60,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_exigeant: {
     id: 'client_exigeant',
     name: 'Client Exigeant',
-    stats: { atk: 6, mag: 3, hp: 16 },
+    stats: { atk: 6, mag: 3, hp: 21 },
     difficulty: 'normal',
     rewardXp: 8,
     color: 0xffcc33,
@@ -70,7 +70,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_anxieux: {
     id: 'client_anxieux',
     name: 'Client Anxieux',
-    stats: { atk: 4, mag: 6, hp: 13 },
+    stats: { atk: 4, mag: 6, hp: 17 },
     difficulty: 'normal',
     rewardXp: 8,
     color: 0xff7a4d,
@@ -80,7 +80,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_chronophage: {
     id: 'client_chronophage',
     name: 'Client Chronophage',
-    stats: { atk: 5, mag: 4, hp: 20 },
+    stats: { atk: 5, mag: 4, hp: 26 },
     difficulty: 'normal',
     rewardXp: 10,
     color: 0xc78cff,
@@ -90,7 +90,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_fantome: {
     id: 'client_fantome',
     name: 'Client Fantôme',
-    stats: { atk: 7, mag: 5, hp: 22 },
+    stats: { atk: 7, mag: 5, hp: 28 },
     difficulty: 'hard',
     rewardXp: 14,
     color: 0x9ab0ff,
@@ -100,7 +100,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_zen: {
     id: 'client_zen',
     name: 'Client Zen',
-    stats: { atk: 4, mag: 8, hp: 24 },
+    stats: { atk: 4, mag: 8, hp: 30 },
     difficulty: 'hard',
     rewardXp: 15,
     color: 0x63c6ff,
@@ -120,7 +120,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_blinde: {
     id: 'client_blinde',
     name: 'Client Blindé',
-    stats: { atk: 2, mag: 1, hp: 38 },
+    stats: { atk: 2, mag: 1, hp: 44 },
     difficulty: 'normal',
     rewardXp: 12,
     color: 0x8b9ab8,
@@ -135,7 +135,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_moteur: {
     id: 'client_moteur',
     name: 'Client Moteur',
-    stats: { atk: 4, mag: 3, hp: 16 },
+    stats: { atk: 4, mag: 3, hp: 20 },
     difficulty: 'normal',
     rewardXp: 11,
     color: 0xffaa33,
@@ -150,7 +150,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_demoraliseur: {
     id: 'client_demoraliseur',
     name: 'Client Démoraliseur',
-    stats: { atk: 5, mag: 4, hp: 15 },
+    stats: { atk: 5, mag: 4, hp: 19 },
     difficulty: 'normal',
     rewardXp: 12,
     color: 0x9b59b6,
@@ -165,7 +165,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_brouilleur: {
     id: 'client_brouilleur',
     name: 'Client Brouilleur',
-    stats: { atk: 3, mag: 7, hp: 14 },
+    stats: { atk: 3, mag: 7, hp: 18 },
     difficulty: 'normal',
     rewardXp: 12,
     color: 0x2ecc71,
@@ -180,7 +180,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_vampirique: {
     id: 'client_vampirique',
     name: 'Client Vampirique',
-    stats: { atk: 5, mag: 5, hp: 22 },
+    stats: { atk: 5, mag: 5, hp: 27 },
     difficulty: 'hard',
     rewardXp: 15,
     color: 0x8e44ad,
@@ -195,7 +195,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_lunatique: {
     id: 'client_lunatique',
     name: 'Client Lunatique',
-    stats: { atk: 7, mag: 5, hp: 20 },
+    stats: { atk: 7, mag: 5, hp: 25 },
     difficulty: 'hard',
     rewardXp: 14,
     color: 0x3498db,
@@ -208,14 +208,15 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   // History:
   //  - Original: 13 / 12 / 55. Too spiky (one-shot Laurent, forced L6+ start).
   //  - 10-room pass: 11 / 10 / 60. Softer, tanky enough for L5 entry.
-  //  - 15-room pass (current): 12 / 11 / 70. Longer run → L6 expected, so
-  //    the boss recovers a bit of teeth. Still survives a worst-case 2-shot
-  //    at L6 (see test `no hero dies from two full-power main-boss hits at
-  //    L6`). Kept in lock-step with `MAIN_BOSS_REFERENCE` in balance.ts.
+  //  - 15-room pass: 12 / 11 / 70.
+  //  - T3-spam pass (current): 11 / 11 / 70. ATK −1 compensates for the
+  //    longer fights forced by the T3 cooldown (more enemy turns per combat).
+  //    Worst-case 2-shot at L6 = 2 × ceil(11 × 1.1) = 26 ≤ 29 HP (Laurent).
+  //    Kept in lock-step with `MAIN_BOSS_REFERENCE` in balance.ts.
   client_legendaire: {
     id: 'client_legendaire',
     name: "l'Administration",
-    stats: { atk: 12, mag: 11, hp: 70 },
+    stats: { atk: 11, mag: 11, hp: 70 },
     difficulty: 'boss',
     rewardXp: 60,
     color: 0xff5a5a,
@@ -236,8 +237,8 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   // by design.
   //
   // Stat rule: Orzag = client_legendaire × ORZAG_POWER_MULT (currently 2).
-  //   base  = 12 / 11 / 70
-  //   orzag = 24 / 22 / 140
+  //   base  = 11 / 11 / 70
+  //   orzag = 22 / 22 / 140
   // The rule is asserted by `balance.test.ts` — if you re-tune the main boss
   // the test will nag you to re-derive Orzag, keeping the 2× promise honest.
   // Reward XP bumped to 150 — beating Orzag is the true ending, worth more.
@@ -245,7 +246,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
     id: 'orzag_coeur_pierre',
     name: 'Orzag Cœur de Pierre',
     stats: {
-      atk: 12 * ORZAG_POWER_MULT,
+      atk: 11 * ORZAG_POWER_MULT,
       mag: 11 * ORZAG_POWER_MULT,
       hp:  70 * ORZAG_POWER_MULT,
     },

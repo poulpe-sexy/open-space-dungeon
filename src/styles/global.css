@@ -1469,6 +1469,18 @@ span.title-logo {
 .combat-stat-debuff { color: var(--danger); }
 .combat-stat-buff   { color: var(--ok); }
 
+/* T3 cooldown state — button grays out with a subtle locked look.
+   We rely on the built-in :disabled opacity but add an extra visual cue. */
+.combat-actions button.attack-on-cooldown {
+  opacity: 0.45;
+  border-color: rgba(138,147,184,0.3);
+  cursor: not-allowed;
+}
+.combat-actions button.attack-on-cooldown strong::after {
+  content: ' 🔒';
+  font-size: 0.75em;
+}
+
 /* Upscale asset-pack sprite frames cleanly in the enemy portrait box.
    16×16 px tiles are rendered at 4× (64px) — pixelated ensures no blur. */
 .enemy-sprite-box img {

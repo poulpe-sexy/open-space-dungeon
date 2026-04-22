@@ -83,6 +83,43 @@ export const DIFFICULTY_THRESHOLDS: Record<Difficulty, number> = {
   boss:   12,
 };
 
+// ── Attack tuning knobs ─────────────────────────────────────────────────────
+// Consumed by `src/data/attacks.ts` (values are authored there, not computed)
+// and by `src/components/CombatOverlay.tsx` (mpGain applied on use).
+// These constants exist purely to give the tuner a single labeled place to
+// look; the actual numbers are repeated in attacks.ts so the data file stays
+// self-documenting.
+
+/**
+ * Enemy turns a T3 attack stays locked after use.
+ * 2 means: after using T3, the player must take exactly 1 non-T3 action
+ * (T1 or T2) before T3 becomes available again — because the cooldown
+ * decrements once per enemy turn, not per player action.
+ *
+ * Timeline with cooldown 2:
+ *   Player: T3 → cooldown = 2
+ *   Enemy turn:  cooldown → 1
+ *   Player: forced T1 or T2 (T3 grayed out)
+ *   Enemy turn:  cooldown → 0
+ *   Player: T3 available again
+ *
+ * Raising to 3 would force TWO non-T3 player actions; lowering to 1 forces
+ * none (just skips one enemy turn — too lenient).
+ */
+export const T3_COOLDOWN = 2;
+
+/**
+ * MP returned to the hero when they use their T1 (free) attack.
+ * This gives T1 a second purpose beyond "desperation filler": during a T3
+ * cooldown window the player actively wants to press T1 to top up MP for the
+ * next T3. Creates a deliberate rhythm instead of mindless waiting.
+ *
+ * 1 is the sweet spot: meaningful over 2+ T1 uses but not strong enough to
+ * fully recharge between T3 casts on its own (T3 costs 4–7 MP; two T1 uses
+ * only recover 2).
+ */
+export const T1_MP_GAIN = 1;
+
 // ── Secret boss (Orzag) ─────────────────────────────────────────────────────
 // Consumed by `src/data/enemies.ts` for the stat numbers, and by
 // `src/game/secretEnding.ts` for documentation.
@@ -99,13 +136,15 @@ export const ORZAG_POWER_MULT = 2;
 // Used by `balance.test.ts` to assert the 2× rule between Administration
 // and Orzag. The live numbers are the source of truth in `src/data/enemies.ts`.
 //
-// Rebalance note (15-room run): bumped from 11/10/60 → 12/11/70. With the
-// longer run the player reaches the boss at L6 (not L5), so +1 atk / +1 mag
-// / +10 hp restores tension without breaking the 2-shot survival floor —
-// L6 Laurent has 29 HP, worst-case 2-shot = 2 × ceil(12 × 1.1) = 28.
+// Rebalance note (T3-spam pass): ATK 12 → 11.
+// T3 cooldown forces longer fights (more enemy turns per combat), so the boss
+// lands more hits than before. Dropping ATK by 1 compensates — worst-case
+// 2-shot is now 2 × ceil(11 × 1.1) = 26, still within every L6 hero's HP
+// (Laurent 29, Alphonse 32, Marine 35). HP stays at 70 — the cooldown already
+// makes the fight longer without needing more bulk.
 
 export const MAIN_BOSS_REFERENCE = {
-  atk: 12,
+  atk: 11,
   mag: 11,
   hp:  70,
 } as const;
