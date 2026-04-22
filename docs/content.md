@@ -63,6 +63,25 @@ Contraintes :
 - `hpDelta` est toujours clampé entre 0 et `maxHp` (jamais de mort par event).
 - `mpDelta` est clampé entre 0 et `maxMp`.
 
+### Règles d'équilibrage des choix
+
+Chaque choix doit présenter un **vrai arbitrage**. Éviter :
+- Un choix uniquement positif (domination triviale).
+- Un choix uniquement négatif (jamais choisi volontairement).
+- Un choix neutre sans intérêt (ni coût, ni gain).
+
+Cibles d'équilibrage :
+| Archétype | Exemple |
+|---|---|
+| Gain PV / coût MP | `hpDelta: 3, mpDelta: -1` — bon pour les tanks |
+| Gain MP / coût PV | `mpDelta: 3, hpDelta: -1` — bon pour les mages |
+| Gain PV+MP faibles | `hpDelta: 1, mpDelta: 1` — choix prudent / sans risque |
+| Reward item / coût MP | `mpDelta: -2, grantRewardItemId: …` — long terme > court terme |
+| Coup double negatif | Acceptable si compensé par un gain unique ailleurs |
+
+**Les choix `grantRewardItemId` doivent toujours avoir un coût** (typiquement `-1` à `-2 MP`)
+pour que l'item ne soit pas une évidence absolue — surtout en début de run avec un MP plein.
+
 ### 2. Ajouter l'ID dans le pool de zone
 
 Dans `src/game/generateEncounters.ts`, ajoute l'ID dans la liste appropriée

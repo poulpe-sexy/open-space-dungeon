@@ -2,8 +2,9 @@ import type { EventDef } from './types';
 
 /**
  * Traps use the same declarative shape as events: text + choices + effects.
- * They typically feature a mandatory damage branch (can't just walk away)
- * and a risky "disarm" choice. Kept minimal for MVP — expand freely.
+ * Design contract: every choice has BOTH a cost AND a benefit (or a unique
+ * trade-off), so the player faces a genuine decision rather than a pure
+ * "best vs. worst" selection.
  */
 export const TRAPS: Record<string, EventDef> = {
   cable_snare: {
@@ -14,14 +15,14 @@ export const TRAPS: Record<string, EventDef> = {
       + 'Un néon grésille juste au-dessus.',
     choices: [
       {
-        label: 'Foncer (-4 PV, traverse vite)',
-        log: 'Tu passes en force. Quelque chose pète dans un rack.',
-        effect: { hpDelta: -4 },
+        label: 'Foncer (-3 PV, +1 MP)',
+        log: 'Tu passes en force. Adrénaline. Quelque chose pète dans un rack, mais tu es déjà loin.',
+        effect: { hpDelta: -3, mpDelta: 1 },
       },
       {
-        label: 'Démêler patiemment (-2 MP, sûr)',
-        log: 'Tu extirpes le bon câble comme un·e ninja IT.',
-        effect: { mpDelta: -2 },
+        label: 'Démêler patiemment (-2 MP, +2 PV)',
+        log: 'Tu extirpes le bon câble comme un·e ninja IT. Satisfaction incompréhensible.',
+        effect: { mpDelta: -2, hpDelta: 2 },
       },
     ],
   },
@@ -34,18 +35,19 @@ export const TRAPS: Record<string, EventDef> = {
       + 'vrombit dans le mur.',
     choices: [
       {
-        label: 'Avancer en traînant les pieds (-6 PV)',
-        log: 'ZAP. Tu sens tes cheveux se dresser.',
-        effect: { hpDelta: -6 },
+        label: 'Avancer en traînant les pieds (-5 PV, +2 MP)',
+        log: 'ZAP. La décharge te traverse — mais quelque chose se clarifie brutalement dans ta tête.',
+        effect: { hpDelta: -5, mpDelta: 2 },
       },
       {
-        label: 'Sauter en rythme (0 PV, cringe)',
-        log: 'Tu traverses en bondissant. Personne ne t\u2019a vu, promis.',
+        label: 'Sauter en rythme (-1 MP)',
+        log: 'Tu traverses en bondissant. Ça demande de la concentration. Personne ne t\u2019a vu, promis.',
+        effect: { mpDelta: -1 },
       },
     ],
   },
 
-  // ─── Nouvelles épreuves absurdes — favor Marine (Choc / physique) ───────────
+  // ─── Réunion infinie — chaque issue a maintenant un avantage ────────────────
 
   reunion_infinie: {
     id: 'reunion_infinie',
@@ -56,19 +58,19 @@ export const TRAPS: Record<string, EventDef> = {
     recommendedHero: 'Choc',
     choices: [
       {
-        label: 'Forcer la porte (-5 PV, immédiat)',
-        log: 'BANG. Tu sors. Les regards pèsent mais tu respires enfin.',
-        effect: { hpDelta: -5 },
+        label: 'Forcer la porte (-5 PV, +2 MP)',
+        log: 'BANG. Tu sors. Les regards pèsent — mais l\u2019adrénaline de la fuite compense.',
+        effect: { hpDelta: -5, mpDelta: 2 },
       },
       {
-        label: 'Rester poli·e et attendre (-3 MP)',
-        log: 'Tu survis par politesse. Le temps fait son œuvre, l\u2019esprit s\u2019étiole.',
-        effect: { mpDelta: -3 },
+        label: 'Rester poli·e et attendre (-3 MP, +2 PV)',
+        log: 'Tu survis par politesse. Tu entends deux informations utiles. L\u2019esprit s\u2019étiole, mais le corps repose.',
+        effect: { mpDelta: -3, hpDelta: 2 },
       },
     ],
   },
 
-  // ─── Tunnel de validation — enrichi, ordre logique Lisible→Validé→Conforme ──
+  // ─── Tunnel de validation — le bon ordre coûte maintenant du MP ─────────────
 
   tunnel_validation: {
     id: 'tunnel_validation',
@@ -80,23 +82,23 @@ export const TRAPS: Record<string, EventDef> = {
     recommendedHero: 'Choc',
     choices: [
       {
-        label: 'Tamponner dans l\u2019ordre : Lisible → Validé → Conforme',
+        label: 'Tamponner dans l\u2019ordre : Lisible → Validé → Conforme (-2 MP)',
         log:
-          'Chaque feuille passe dans le bon ordre. Au bout du tunnel, '
+          'Chaque feuille passe dans le bon ordre — ça prend du souffle. Au bout du tunnel, '
           + 'un tampon net t\u2019attend sur un pupitre — propre, décisif. '
           + 'Tu le glisses dans ta poche.',
-        effect: { grantRewardItemId: 'tampon_net' },
+        effect: { mpDelta: -2, grantRewardItemId: 'tampon_net' },
       },
       {
-        label: 'Signer tout sans lire (-4 PV, rapide)',
+        label: 'Signer tout sans lire (-3 PV, +1 MP)',
         log:
-          'Tu signes à l\u2019arrache. Au bout du tunnel, quelqu\u2019un t\u2019applaudit, perplexe.',
-        effect: { hpDelta: -4 },
+          'Tu signes à l\u2019arrache. Au bout du tunnel, quelqu\u2019un t\u2019applaudit, perplexe. L\u2019adrénaline passe.',
+        effect: { hpDelta: -3, mpDelta: 1 },
       },
       {
-        label: 'Lire chaque feuille (-2 MP, propre mais lent)',
-        log: 'Tu valides avec rigueur. Petite migraine, conscience claire.',
-        effect: { mpDelta: -2 },
+        label: 'Lire chaque feuille (-2 MP, +1 PV)',
+        log: 'Tu valides avec rigueur. Petite migraine, conscience claire — et une légère fierté.',
+        effect: { mpDelta: -2, hpDelta: 1 },
       },
     ],
   },

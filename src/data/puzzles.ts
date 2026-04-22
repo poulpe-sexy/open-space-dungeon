@@ -1,10 +1,13 @@
 import type { EventDef } from './types';
 
 /**
- * Puzzles are events where exactly one choice is "right" and grants a reward,
- * the others cost something. Still declarative so a designer can add new ones
- * without touching code. Full branching puzzles (multi-step) will need a new
- * structure — not in scope for MVP.
+ * Puzzles are events with at least one "intended" path. Unlike old-style puzzles
+ * where the correct answer was free and wrong answers were pure penalties, each
+ * choice here carries BOTH a cost and a benefit — the player faces real trade-offs
+ * rather than obvious pick-the-right-one.
+ *
+ * The "correct" route still gives the best long-term outcome (a reward item or
+ * the best HP/MP combo), but it is no longer cost-free.
  */
 export const PUZZLES: Record<string, EventDef> = {
   coffee_order: {
@@ -12,27 +15,27 @@ export const PUZZLES: Record<string, EventDef> = {
     title: 'La commande du CEO',
     text:
       'Un post-it sur un mug : "double ristretto, lait d\u2019avoine, sans mousse, '
-      + 'EXACTEMENT". Trois mugs fumants attendent. Lequel est le bon ?',
+      + 'EXACTEMENT". Trois mugs fumants attendent.',
     choices: [
       {
-        label: 'Le mug beige (le correct)',
-        log: 'Tu bois. Clarté mentale totale. +3 PV, +2 MP.',
-        effect: { hpDelta: 3, mpDelta: 2 },
+        label: 'Le mug beige (odeur forte, fond légèrement huileux)',
+        log: 'Double ristretto, lait d\u2019avoine, zéro mousse. Exactement. Clarté mentale totale. +2 PV, +2 MP.',
+        effect: { hpDelta: 2, mpDelta: 2 },
       },
       {
-        label: 'Le mug blanc (mousse visible)',
-        log: 'Mauvais choix. Le cringe t\u2019assèche. -2 PV.',
-        effect: { hpDelta: -2 },
+        label: 'Le mug blanc (mousse visible en surface)',
+        log: 'La mousse te trahit. Mauvais café, mauvais cringe — mais les caféines passent quand même. -2 PV, +1 MP.',
+        effect: { hpDelta: -2, mpDelta: 1 },
       },
       {
-        label: 'Le mug noir (taille XL)',
-        log: 'C\u2019était un thé. -1 MP.',
-        effect: { mpDelta: -1 },
+        label: 'Le mug noir (étiquette : thé oolong)',
+        log: 'C\u2019était un thé. Pas de café. Étonnamment reposant. -1 MP, +2 PV.',
+        effect: { mpDelta: -1, hpDelta: 2 },
       },
     ],
   },
 
-  // ─── Frigo maudit — enrichi avec yaourt Michel 2019 + cuillere_gouvernance ─
+  // ─── Frigo maudit — chaque option a maintenant un avantage ──────────────────
 
   frigo_maudit: {
     id: 'frigo_maudit',
@@ -43,31 +46,32 @@ export const PUZZLES: Record<string, EventDef> = {
     recommendedHero: 'Sage',
     choices: [
       {
-        label: 'Le tupperware « Propre » (+3 PV, +1 MP)',
-        log: 'Étonnamment sain. Petit snack. +3 PV, +1 MP.',
-        effect: { hpDelta: 3, mpDelta: 1 },
+        label: 'Le tupperware « Propre » (+3 PV)',
+        log: 'Étonnamment sain. Un peu fade, mais ça tient.',
+        effect: { hpDelta: 3 },
       },
       {
-        label: 'Le yaourt de Michel (2019)',
+        label: 'Le yaourt de Michel (2019) (-1 PV)',
         log:
-          'Contre toute attente, il est parfait. Michel avait une cuillère en argent dans le couvercle. '
+          'Tu hésites une seconde. Tu l\u2019ouvres quand même. Contre toute attente, parfait. '
+          + 'Michel avait une cuillère en argent dans le couvercle. '
           + 'La Cuillère de Gouvernance — elle tranche les décisions depuis 2019.',
-        effect: { grantRewardItemId: 'cuillere_gouvernance' },
+        effect: { hpDelta: -1, grantRewardItemId: 'cuillere_gouvernance' },
       },
       {
-        label: 'Le tupperware « Urgent » (-3 PV)',
-        log: 'Moisi depuis trois semaines. -3 PV.',
-        effect: { hpDelta: -3 },
+        label: 'Le tupperware « Urgent » (-2 PV, +2 MP)',
+        log: 'Moisi depuis trois semaines. Ton système immunitaire entre en mode urgence. Curieusement stimulant.',
+        effect: { hpDelta: -2, mpDelta: 2 },
       },
       {
-        label: 'Le tupperware « Ne pas toucher » (-2 MP)',
-        log: 'Quelque chose a bougé dedans. Tu regrettes. -2 MP.',
-        effect: { mpDelta: -2 },
+        label: 'Le tupperware « Ne pas toucher » (-1 PV, +1 MP)',
+        log: 'Tu l\u2019entrouvres juste assez. Quelque chose a bougé — mais l\u2019adrénaline aide.',
+        effect: { hpDelta: -1, mpDelta: 1 },
       },
     ],
   },
 
-  // ─── Badgeuse prophétique — enrichie, grosse pénalité sur la mauvaise lecture ─
+  // ─── Badgeuse prophétique — les mauvaises lectures ont un avantage ───────────
 
   badgeuse_prophetique: {
     id: 'badgeuse_prophetique',
@@ -78,28 +82,28 @@ export const PUZZLES: Record<string, EventDef> = {
     recommendedHero: 'Sage',
     choices: [
       {
-        label: '« Bienvenue » — lecture juste (+2 PV, +2 MP)',
+        label: '« Bienvenue » — lecture juste (+2 PV, +1 MP)',
         log: 'Vraie prophétie. Tu avances, serein·e. La badgeuse bipe une seule fois, nette.',
-        effect: { hpDelta: 2, mpDelta: 2 },
+        effect: { hpDelta: 2, mpDelta: 1 },
       },
       {
-        label: '« Tu n\u2019es pas dans l\u2019annuaire » — lecture menaçante',
+        label: '« Tu n\u2019es pas dans l\u2019annuaire » — lecture menaçante (-3 PV, +2 MP)',
         log:
           'Mauvaise lecture. La badgeuse déclenche une alerte silencieuse. '
-          + 'Deux vigiles apparaissent puis repartent déçus. -4 PV.',
-        effect: { hpDelta: -4 },
+          + 'Deux vigiles apparaissent puis repartent déçus — l\u2019adrénaline reste.',
+        effect: { hpDelta: -3, mpDelta: 2 },
       },
       {
-        label: '« Réunion dans 2 min » — lecture urgente',
+        label: '« Réunion dans 2 min » — lecture urgente (-1 MP, +2 PV)',
         log:
-          'Fausse alerte. Tu cours dans le couloir, glisses sur la moquette, '
-          + 'arrives dans une salle vide. -2 MP.',
-        effect: { mpDelta: -2 },
+          'Fausse alerte. Tu cours dans le couloir, arrives dans une salle vide. '
+          + 'La course te fait du bien.',
+        effect: { mpDelta: -1, hpDelta: 2 },
       },
     ],
   },
 
-  // ─── Café quantique — enrichi, effets surprises par boisson ─────────────────
+  // ─── Café quantique — trois archétypes distincts, pas de dominant ────────────
 
   cafe_quantique: {
     id: 'cafe_quantique',
@@ -110,30 +114,30 @@ export const PUZZLES: Record<string, EventDef> = {
     recommendedHero: 'Sage',
     choices: [
       {
-        label: 'Observer avant de boire — effondrer la fonction d\u2019onde (+2 PV, +3 MP)',
+        label: 'Observer avant de boire — effondrer la fonction d\u2019onde (+1 PV, +3 MP)',
         log:
           'Tu observes, tu choisis. Le café est parfait, à la température exacte. '
-          + 'La réalité te remercie.',
-        effect: { hpDelta: 2, mpDelta: 3 },
+          + 'La réalité te remercie. Choix du Sage.',
+        effect: { hpDelta: 1, mpDelta: 3 },
       },
       {
-        label: 'Boire le premier sans regarder (-3 PV, +1 MP)',
+        label: 'Boire le premier sans regarder (-2 PV, +3 MP)',
         log:
           'Il n\u2019existait peut-être pas vraiment. Goût amer de paradoxe — '
-          + 'mais quelques caféines passent quand même.',
-        effect: { hpDelta: -3, mpDelta: 1 },
+          + 'mais les caféines quantiques sont bien réelles.',
+        effect: { hpDelta: -2, mpDelta: 3 },
       },
       {
-        label: 'Les boire tous pour être sûr·e (-1 PV, -2 MP)',
+        label: 'Les boire tous pour être sûr·e (+3 PV, -2 MP)',
         log:
-          'Paradoxe digestif. Tu perds le fil du temps et l\u2019espace se referme. '
-          + 'Petite overdose de réalité.',
-        effect: { hpDelta: -1, mpDelta: -2 },
+          'Overdose de réalité. Tu perds le fil du temps — mais le corps absorbe. '
+          + 'Choix du tank imprudent.',
+        effect: { hpDelta: 3, mpDelta: -2 },
       },
     ],
   },
 
-  // ─── Mur de post-its — nouveau, trouver le post-it bleu caché ───────────────
+  // ─── Mur de post-its — chercher méthodiquement coûte du MP ──────────────────
 
   mur_postit: {
     id: 'mur_postit',
@@ -145,25 +149,25 @@ export const PUZZLES: Record<string, EventDef> = {
     recommendedHero: 'Sage',
     choices: [
       {
-        label: 'Chercher méthodiquement de gauche à droite',
+        label: 'Chercher méthodiquement de gauche à droite (-1 MP)',
         log:
-          'Colonne après colonne. Ligne après ligne. Au centre, légèrement tordu, '
+          'Colonne après colonne. Ça prend de la concentration. Au centre, légèrement tordu, '
           + 'le post-it bleu. Une action, un nom, une date. Il passe dans ta poche.',
-        effect: { grantRewardItemId: 'postit_action' },
+        effect: { mpDelta: -1, grantRewardItemId: 'postit_action' },
       },
       {
-        label: 'Attraper le premier post-it qui attire l\u2019œil (-2 PV)',
+        label: 'Attraper le premier post-it qui attire l\u2019œil (-2 PV, +1 MP)',
         log:
           'Rose. « Améliorer la synergie ». Pas de responsable, pas de date. '
-          + 'Le mur te regarde avec tristesse.',
-        effect: { hpDelta: -2 },
+          + 'La frustration est tonique, au moins.',
+        effect: { hpDelta: -2, mpDelta: 1 },
       },
       {
-        label: 'Ajouter ton propre post-it sur le mur (-1 MP)',
+        label: 'Ajouter ton propre post-it sur le mur (-1 MP, +1 PV)',
         log:
           'Tu écris « TODO » et le colles au milieu. Tu te sens utile. '
-          + 'Le mur ne change pas. Tu passes.',
-        effect: { mpDelta: -1 },
+          + 'Le mur ne change pas. Mais toi, légèrement.',
+        effect: { mpDelta: -1, hpDelta: 1 },
       },
     ],
   },
