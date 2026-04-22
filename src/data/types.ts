@@ -203,6 +203,12 @@ export interface EventChoice {
     mpDelta?: number;
     grantAttackId?: string;
     grantKeyItemId?: KeyItemId;
+    /**
+     * Grant a permanent stat-boost item (same as riddle rewards).
+     * Handled by EventOverlay: applies the bonus once, adds to rewardItems
+     * so duplicates are skipped if the same item is offered again.
+     */
+    grantRewardItemId?: RewardItemId;
     setFlag?: string;
   };
   /** If set, the choice is disabled unless the player has the item. */

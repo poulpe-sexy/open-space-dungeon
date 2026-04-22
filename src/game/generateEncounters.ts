@@ -80,8 +80,8 @@ const ZONE_POOLS: Record<string, ZonePool> = {
   accueil: {
     // Zone I — introductory. Special enemies start appearing from open_space.
     combat:  ['client_hesitant', 'client_sceptique'],
-    events:  ['pep_talk', 'coffee_machine', 'slack_maudit'],
-    traps:   ['cable_snare', 'comite_plantes'],
+    events:  ['pep_talk', 'coffee_machine', 'slack_maudit', 'standup_eternel', 'comite_plantes'],
+    traps:   ['cable_snare'],
     puzzles: ['badgeuse_prophetique', 'frigo_maudit'],
     weights: [40, 25, 20, 15],
   },
@@ -91,9 +91,9 @@ const ZONE_POOLS: Record<string, ZonePool> = {
     // client_moteur: self-buffs (learn to kill fast before ATK snowballs).
     combat:  ['client_sceptique', 'client_exigeant', 'client_anxieux',
                'client_blinde', 'client_moteur'],
-    events:  ['coffee_machine', 'mystery_memo', 'slack_maudit', 'ascenseur_priorites'],
-    traps:   ['cable_snare', 'floor_shock', 'tunnel_validation', 'comite_plantes'],
-    puzzles: ['coffee_order', 'cafe_quantique', 'frigo_maudit'],
+    events:  ['coffee_machine', 'mystery_memo', 'slack_maudit', 'standup_eternel', 'comite_plantes'],
+    traps:   ['cable_snare', 'floor_shock', 'tunnel_validation'],
+    puzzles: ['coffee_order', 'cafe_quantique', 'frigo_maudit', 'mur_postit'],
     weights: [40, 25, 20, 15],
   },
   salles_reu: {
@@ -101,18 +101,18 @@ const ZONE_POOLS: Record<string, ZonePool> = {
     // client_demoraliseur: drains ATK; client_lunatique: burst pattern.
     combat:  ['client_exigeant', 'client_anxieux', 'client_chronophage',
                'client_blinde', 'client_demoraliseur', 'client_lunatique'],
-    events:  ['mystery_memo', 'pep_talk', 'powerpoint_interdit', 'slack_maudit'],
+    events:  ['mystery_memo', 'pep_talk', 'slack_maudit', 'standup_eternel'],
     traps:   ['cable_snare', 'floor_shock', 'reunion_infinie'],
-    puzzles: ['coffee_order', 'bureau_sens_cache', 'frigo_maudit'],
+    puzzles: ['coffee_order', 'frigo_maudit', 'mur_postit'],
     weights: [35, 25, 25, 15],
   },
   technique: {
     // Zone IV — harder specials: MAG brouilleur, vampirique drain.
     combat:  ['client_fantome', 'client_zen', 'client_anxieux',
                'client_brouilleur', 'client_vampirique'],
-    events:  ['mystery_memo', 'slack_maudit'],
+    events:  ['mystery_memo', 'slack_maudit', 'standup_eternel'],
     traps:   ['floor_shock', 'cable_snare', 'tunnel_validation'],
-    puzzles: ['cafe_quantique', 'badgeuse_prophetique'],
+    puzzles: ['cafe_quantique', 'badgeuse_prophetique', 'mur_postit'],
     weights: [40, 15, 30, 15],
   },
   direction: {
@@ -120,9 +120,9 @@ const ZONE_POOLS: Record<string, ZonePool> = {
     combat:  ['client_chronophage', 'client_fantome', 'client_zen',
                'client_demoraliseur', 'client_brouilleur',
                'client_vampirique', 'client_lunatique'],
-    events:  ['pep_talk', 'mystery_memo', 'powerpoint_interdit', 'ascenseur_priorites'],
+    events:  ['pep_talk', 'mystery_memo', 'standup_eternel', 'comite_plantes'],
     traps:   ['floor_shock', 'cable_snare', 'reunion_infinie', 'tunnel_validation'],
-    puzzles: ['coffee_order', 'bureau_sens_cache', 'cafe_quantique', 'badgeuse_prophetique'],
+    puzzles: ['coffee_order', 'cafe_quantique', 'badgeuse_prophetique', 'mur_postit'],
     weights: [35, 20, 25, 20],
   },
 };

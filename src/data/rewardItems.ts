@@ -89,6 +89,65 @@ export const REWARD_ITEMS: Record<RewardItemId, RewardItem> = {
     glyph: '🥾',
     bonus: { maxHp: 2 },
   },
+
+  // ── Nouveaux items — épreuves supplémentaires ──────────────────────────────
+
+  postit_action: {
+    id: 'postit_action',
+    name: "Post-it d'action",
+    description: "Un seul point d'action. Concret, daté, attribué. Ça change tout.",
+    glyph: '📌',
+    bonus: { atk: 1 },
+  },
+  cuillere_gouvernance: {
+    id: 'cuillere_gouvernance',
+    name: 'Cuillère de Gouvernance',
+    description: "Trouve dans chaque réunion un responsable, une date, une décision. Pas plus.",
+    glyph: '🥄',
+    bonus: { maxHp: 2 },
+  },
+  badge_provisoire: {
+    id: 'badge_provisoire',
+    name: 'Badge provisoire',
+    description: "Estampille « provisoire » depuis 2019. Mais il ouvre encore les bonnes portes.",
+    glyph: '🔖',
+    bonus: { mag: 1 },
+  },
+  laser_priorisation: {
+    id: 'laser_priorisation',
+    name: 'Laser de Priorisation',
+    description: "Pointe sur ce qui compte vraiment. Tout le reste pâlit.",
+    glyph: '🔦',
+    bonus: { mag: 1 },
+  },
+  tampon_net: {
+    id: 'tampon_net',
+    name: 'Tampon net',
+    description: "Encre propre, décision claire. Un seul coup — sans ambiguïté.",
+    glyph: '🖊',
+    bonus: { maxHp: 2 },
+  },
+  casque_anti_ping: {
+    id: 'casque_anti_ping',
+    name: 'Casque anti-ping',
+    description: "Filtre les @here à la source. Silence tactique, productivité maximale.",
+    glyph: '🎧',
+    bonus: { mag: 1 },
+  },
+  feuille_cadrage: {
+    id: 'feuille_cadrage',
+    name: 'Feuille de cadrage',
+    description: "Périmètre, objectif, contraintes — une page, point. Les plantes approuvent.",
+    glyph: '📄',
+    bonus: { maxHp: 2 },
+  },
+  clarte_sprint: {
+    id: 'clarte_sprint',
+    name: 'Clarté de sprint',
+    description: "Objectif de sprint lisible par toute l'équipe en moins de 10 secondes.",
+    glyph: '🏁',
+    bonus: { atk: 1 },
+  },
 };
 
 export const REWARD_ITEM_IDS = Object.keys(REWARD_ITEMS) as RewardItemId[];

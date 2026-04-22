@@ -10,8 +10,8 @@ export const TRAPS: Record<string, EventDef> = {
     id: 'cable_snare',
     title: 'Nœud de câbles',
     text:
-      'Un enchevêtrement de câbles RJ45 et d’alimentations bloque le passage. ' +
-      'Un néon grésille juste au-dessus.',
+      'Un enchevêtrement de câbles RJ45 et d\u2019alimentations bloque le passage. '
+      + 'Un néon grésille juste au-dessus.',
     choices: [
       {
         label: 'Foncer (-4 PV, traverse vite)',
@@ -25,12 +25,13 @@ export const TRAPS: Record<string, EventDef> = {
       },
     ],
   },
+
   floor_shock: {
     id: 'floor_shock',
     title: 'Moquette statique',
     text:
-      'La moquette grise est chargée. Chaque pas crépite. Un panneau serveur ' +
-      'vrombit dans le mur.',
+      'La moquette grise est chargée. Chaque pas crépite. Un panneau serveur '
+      + 'vrombit dans le mur.',
     choices: [
       {
         label: 'Avancer en traînant les pieds (-6 PV)',
@@ -39,17 +40,19 @@ export const TRAPS: Record<string, EventDef> = {
       },
       {
         label: 'Sauter en rythme (0 PV, cringe)',
-        log: 'Tu traverses en bondissant. Personne ne t’a vu, promis.',
+        log: 'Tu traverses en bondissant. Personne ne t\u2019a vu, promis.',
       },
     ],
   },
 
-  // ─── Nouvelles épreuves absurdes — favor Marine (Choc / physique) ───
+  // ─── Nouvelles épreuves absurdes — favor Marine (Choc / physique) ───────────
 
   reunion_infinie: {
     id: 'reunion_infinie',
     title: 'Réunion infinie',
-    text: 'Tu es pris·e dans une réunion. L’ordre du jour dit « Tour de table » et recommence à chaque tour.',
+    text:
+      'Tu es pris·e dans une réunion. L\u2019ordre du jour dit « Tour de table » '
+      + 'et recommence à chaque tour.',
     recommendedHero: 'Choc',
     choices: [
       {
@@ -59,45 +62,40 @@ export const TRAPS: Record<string, EventDef> = {
       },
       {
         label: 'Rester poli·e et attendre (-3 MP)',
-        log: 'Tu survis par politesse. Le temps fait son œuvre, l’esprit s’étiole.',
+        log: 'Tu survis par politesse. Le temps fait son œuvre, l\u2019esprit s\u2019étiole.',
         effect: { mpDelta: -3 },
       },
     ],
   },
 
+  // ─── Tunnel de validation — enrichi, ordre logique Lisible→Validé→Conforme ──
+
   tunnel_validation: {
     id: 'tunnel_validation',
     title: 'Tunnel de validation',
-    text: 'Un couloir étroit. À chaque pas, une feuille t’est tendue : « À valider ». Il y en a déjà cinq dans ta main.',
+    text:
+      'Un couloir étroit. À chaque pas, une feuille t\u2019est tendue : « À valider ». '
+      + 'Il y en a déjà cinq dans ta main. Trois tampons traînent au sol : '
+      + '« Lisible », « Validé », « Conforme ».',
     recommendedHero: 'Choc',
     choices: [
+      {
+        label: 'Tamponner dans l\u2019ordre : Lisible → Validé → Conforme',
+        log:
+          'Chaque feuille passe dans le bon ordre. Au bout du tunnel, '
+          + 'un tampon net t\u2019attend sur un pupitre — propre, décisif. '
+          + 'Tu le glisses dans ta poche.',
+        effect: { grantRewardItemId: 'tampon_net' },
+      },
       {
         label: 'Signer tout sans lire (-4 PV, rapide)',
-        log: 'Tu signes à l’arrache. Au bout du tunnel, quelqu’un t’applaudit, perplexe.',
+        log:
+          'Tu signes à l\u2019arrache. Au bout du tunnel, quelqu\u2019un t\u2019applaudit, perplexe.',
         effect: { hpDelta: -4 },
       },
       {
-        label: 'Lire chaque feuille (-2 MP, propre)',
+        label: 'Lire chaque feuille (-2 MP, propre mais lent)',
         log: 'Tu valides avec rigueur. Petite migraine, conscience claire.',
-        effect: { mpDelta: -2 },
-      },
-    ],
-  },
-
-  comite_plantes: {
-    id: 'comite_plantes',
-    title: 'Comité des plantes vertes',
-    text: 'Sept ficus en cercle. Ils ne bougent pas, mais ils délibèrent. L’air est lourd, végétal.',
-    recommendedHero: 'Choc',
-    choices: [
-      {
-        label: 'Passer en force (-4 PV)',
-        log: 'Une branche te frappe dans le dos. Pas cool. Mais tu passes.',
-        effect: { hpDelta: -4 },
-      },
-      {
-        label: 'Attendre la fin du comité (-2 MP)',
-        log: 'Ça dure. Tu vieillis. Ils finissent par te laisser passer, sans un mot.',
         effect: { mpDelta: -2 },
       },
     ],

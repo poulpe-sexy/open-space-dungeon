@@ -1,7 +1,5 @@
 import type { Hero } from '../data/types';
-import { ATTACKS } from '../data/attacks';
 import { HeroPortrait } from './HeroPortrait';
-import { tierLabel } from './CombatOverlay';
 
 interface Props {
   hero: Hero;
@@ -34,23 +32,6 @@ export function HeroCard({ hero, selected, onSelect }: Props) {
         <div className="hero-class">Classe : {hero.className}</div>
       </div>
       <div className="hero-tag">{hero.tag}</div>
-
-      {/* Attack kit preview — one chip per tier, colors match combat badges */}
-      <div className="hero-attacks">
-        {hero.attacks.map((id, i) => {
-          const atk = ATTACKS[id];
-          const tier = (i + 1) as 1 | 2 | 3;
-          return (
-            <span
-              key={id}
-              className={`attack-tier tier-${tier}`}
-              title={atk?.description}
-            >
-              {tierLabel(tier)} · {atk?.name ?? id}
-            </span>
-          );
-        })}
-      </div>
     </button>
   );
 }

@@ -160,6 +160,71 @@ export const RIDDLES: Record<RiddleId, Riddle> = {
     successText: 'Oui. Gemba : le vrai se passe là où les mains se salissent.',
     failText: 'Pas tout à fait. Les slides et les rituels décrivent le problème — ils ne le révèlent pas.',
   },
+
+  // ── Nouvelles devinettes — épreuves supplémentaires ───────────────────────
+
+  powerpoint_interdit: {
+    id: 'powerpoint_interdit',
+    topic: 'Open Space — Présentation',
+    prompt:
+      'Un PowerPoint de 63 slides. Laquelle capture vraiment l\u2019attention de la salle avant que tout le monde décroche ?',
+    choices: [
+      'La slide 1 — le titre accroche',
+      'La slide 42 — effet de surprise',
+      'La slide 61 — révélation tardive',
+      'La dernière — tout le monde attend la fin',
+    ],
+    correctIndex: 2,
+    rewardItemId: 'laser_priorisation',
+    successText: 'Exact. La slide 61 — celle que personne n\u2019anticipait. Le laser de priorisation brille.',
+    failText: 'Pas cette fois. L\u2019attention sursaute là où on ne l\u2019attend pas.',
+  },
+
+  bureau_sens_cache: {
+    id: 'bureau_sens_cache',
+    topic: 'Lean Tech — Valeur',
+    prompt:
+      'Dans un document de 40 pages, une seule phrase dit vraiment quelque chose. Selon l\u2019approche Lean Tech, quelle est la source de valeur réelle ?',
+    choices: [
+      "L\u2019alignement strat\u00e9gique",
+      'La valeur utilisateur',
+      'La conformit\u00e9 processus',
+      'La synergie inter\u00e9quipe',
+    ],
+    correctIndex: 1,
+    rewardItemId: 'badge_provisoire',
+    successText: 'Oui. La valeur existe quand l\u2019utilisateur dit qu\u2019elle existe — pas avant.',
+    failText: "Pas tout \u00e0 fait. L\u2019alignement et la conformit\u00e9 sont des moyens, jamais une fin.",
+  },
+
+  ascenseur_priorites: {
+    id: 'ascenseur_priorites',
+    topic: 'Open Space — Priorisation',
+    prompt:
+      'Quatre mots s\u2019affichent dans l\u2019ascenseur\u00a0: URGENT, CRITIQUE, BLOQUANT, IMPORTANT. Un seul appartient \u00e0 la matrice d\u2019Eisenhower sans \u00eatre d\u00e9form\u00e9 par la panique du quotidien. Lequel\u00a0?',
+    choices: ['URGENT', 'CRITIQUE', 'BLOQUANT', 'IMPORTANT'],
+    correctIndex: 3,
+    rewardItemId: 'tampon_net',
+    successText: 'Juste. \u00ab\u00a0Important\u00a0\u00bb est le seul mot de la matrice qui r\u00e9siste \u00e0 l\u2019inflation urgentiste.',
+    failText: 'Pas cette fois. URGENT, CRITIQUE et BLOQUANT sont souvent la m\u00eame panique avec un costume diff\u00e9rent.',
+  },
+
+  retro_interdite: {
+    id: 'retro_interdite',
+    topic: 'Lean Tech — Rétrospective',
+    prompt:
+      'Une \u00e9quipe liste trois actions de r\u00e9tro\u00a0: \u00ab\u00a0Am\u00e9liorer la communication\u00a0\u00bb, \u00ab\u00a0Faire plus de tests\u00a0\u00bb, \u00ab\u00a0Arr\u00eater les r\u00e9unions sans d\u00e9cision\u00a0\u00bb. Laquelle est une vraie action SMART ?',
+    choices: [
+      'Am\u00e9liorer la communication',
+      'Faire plus de tests',
+      'Arr\u00eater les r\u00e9unions sans d\u00e9cision',
+      'C\u00e9l\u00e9brer les succ\u00e8s',
+    ],
+    correctIndex: 2,
+    rewardItemId: 'clarte_sprint',
+    successText: 'Exact. Sp\u00e9cifique, mesurable, actionnable. Les deux autres sont des v\u0153ux pieux.',
+    failText: 'Pas tout \u00e0 fait. Les actions SMART \u00e9vitent les ad\u00e9verbes — \u00ab\u00a0mieux\u00a0\u00bb et \u00ab\u00a0plus\u00a0\u00bb ne sont pas des cibles.',
+  },
 };
 
 export const RIDDLE_IDS = Object.keys(RIDDLES) as RiddleId[];
