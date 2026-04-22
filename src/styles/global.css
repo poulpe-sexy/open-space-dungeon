@@ -1016,18 +1016,36 @@ span.title-logo {
   align-items: center;
   justify-content: center;
   padding-top: 44px; /* clear HUD */
-  background: radial-gradient(ellipse at center, #0d1020 0%, #06080f 100%);
+  /* Fond teinté par zone : centre légèrement coloré, bords noirs */
+  background: radial-gradient(ellipse at center,
+    color-mix(in srgb, var(--zone-color, #5580ff) 10%, #0d1020) 0%,
+    #06080f 100%);
   border: 2px solid var(--zone-color, var(--ink-dim));
+}
+
+/* Halo central atmosphérique — lumière de zone projetée sur la grille */
+.td-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 44px 0 0; /* sous le HUD */
+  background: radial-gradient(ellipse at 50% 42%,
+    color-mix(in srgb, var(--zone-color, #5580ff) 9%, transparent) 0%,
+    transparent 62%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Tile grid */
 .td-grid {
   display: grid;
   gap: 1px;
-  background: #020305; /* gap / mortar colour */
+  /* Joints teintés par zone (couleur du mortier entre les tuiles) */
+  background: color-mix(in srgb, var(--zone-color, #5580ff) 20%, #020305);
+  position: relative; /* stacking context pour le halo */
   flex-shrink: 0;
   image-rendering: pixelated;
   overflow: visible; /* allow player sprite to bleed above its tile */
+  z-index: 1;        /* au-dessus du ::after du wrapper */
 }
 
 /* Base cell */
@@ -1044,12 +1062,16 @@ span.title-logo {
 
 /* Tile types */
 .td-floor {
-  background: var(--tile-floor);
-  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  /* Fallback navigateurs anciens, puis teinture de zone */
+  background-color: var(--tile-floor);
+  background-color: color-mix(in srgb, var(--zone-color, #5580ff) 13%, var(--tile-floor));
+  background-image: radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px);
   background-size: 8px 8px;
 }
 .td-wall {
-  background: var(--tile-wall);
+  /* Murs plus sombres, teinte zone plus légère */
+  background-color: var(--tile-wall);
+  background-color: color-mix(in srgb, var(--zone-color, #5580ff) 7%, var(--tile-wall));
   box-shadow:
     inset 1px 1px 0 var(--tile-bevel-hi),
     inset -1px -1px 0 var(--tile-bevel-lo);
