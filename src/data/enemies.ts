@@ -26,15 +26,17 @@ export interface EnemyWithPortrait extends Enemy {
  * Damage formula at combat time: round(stats.atk * (0.9 + rand*0.2)).
  * `attackNames` is purely flavor, displayed in the combat log.
  *
- * Balance note: the mid-tier enemies were left untouched — they read as
- * correctly scaled (an L1 hero takes 3–7 damage per hit, manageable). Only
- * the final boss and Orzag moved. See `docs/balance.md`.
+ * Balance note (15-room pass): every regular enemy gained +1 or +2 HP so
+ * combats last ~10 % longer — the longer run needed more MP/HP pressure per
+ * fight. ATK floors are unchanged (the "no L1 one-shot" test still holds).
+ * Main boss re-tuned 11/10/60 → 12/11/70 to match the new L6-expected entry.
+ * See `docs/balance.md`.
  */
 export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_hesitant: {
     id: 'client_hesitant',
     name: 'Client Hésitant',
-    stats: { atk: 3, mag: 1, hp: 8 },
+    stats: { atk: 3, mag: 1, hp: 9 },
     difficulty: 'easy',
     rewardXp: 3,
     color: 0x63e6a1,
@@ -44,7 +46,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_sceptique: {
     id: 'client_sceptique',
     name: 'Client Sceptique',
-    stats: { atk: 4, mag: 2, hp: 10 },
+    stats: { atk: 4, mag: 2, hp: 11 },
     difficulty: 'easy',
     rewardXp: 4,
     color: 0x8a93b8,
@@ -54,7 +56,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_exigeant: {
     id: 'client_exigeant',
     name: 'Client Exigeant',
-    stats: { atk: 6, mag: 3, hp: 14 },
+    stats: { atk: 6, mag: 3, hp: 16 },
     difficulty: 'normal',
     rewardXp: 8,
     color: 0xffcc33,
@@ -64,7 +66,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_anxieux: {
     id: 'client_anxieux',
     name: 'Client Anxieux',
-    stats: { atk: 3, mag: 6, hp: 12 },
+    stats: { atk: 4, mag: 6, hp: 13 },
     difficulty: 'normal',
     rewardXp: 8,
     color: 0xff7a4d,
@@ -74,7 +76,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_chronophage: {
     id: 'client_chronophage',
     name: 'Client Chronophage',
-    stats: { atk: 5, mag: 4, hp: 18 },
+    stats: { atk: 5, mag: 4, hp: 20 },
     difficulty: 'normal',
     rewardXp: 10,
     color: 0xc78cff,
@@ -84,7 +86,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_fantome: {
     id: 'client_fantome',
     name: 'Client Fantôme',
-    stats: { atk: 7, mag: 5, hp: 20 },
+    stats: { atk: 7, mag: 5, hp: 22 },
     difficulty: 'hard',
     rewardXp: 14,
     color: 0x9ab0ff,
@@ -94,7 +96,7 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   client_zen: {
     id: 'client_zen',
     name: 'Client Zen',
-    stats: { atk: 4, mag: 8, hp: 22 },
+    stats: { atk: 4, mag: 8, hp: 24 },
     difficulty: 'hard',
     rewardXp: 15,
     color: 0x63c6ff,
@@ -102,14 +104,17 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
     attackNames: ['Respiration consciente', 'Citation zen'],
   },
   // ─── Final boss ────────────────────────────────────────────────────────────
-  // Rebalanced from 13 / 12 / 55 → 11 / 10 / 60. The old 13-damage swing
-  // one-shot Laurent (HP 12) and two-shot Marine/Alphonse at level 1, forcing
-  // a mandatory L6–L7 before a fair fight. New profile: slightly tankier
-  // (longer fight = more drama), slightly softer hits (L4–L5 survivable).
+  // History:
+  //  - Original: 13 / 12 / 55. Too spiky (one-shot Laurent, forced L6+ start).
+  //  - 10-room pass: 11 / 10 / 60. Softer, tanky enough for L5 entry.
+  //  - 15-room pass (current): 12 / 11 / 70. Longer run → L6 expected, so
+  //    the boss recovers a bit of teeth. Still survives a worst-case 2-shot
+  //    at L6 (see test `no hero dies from two full-power main-boss hits at
+  //    L6`). Kept in lock-step with `MAIN_BOSS_REFERENCE` in balance.ts.
   client_legendaire: {
     id: 'client_legendaire',
     name: "l'Administration",
-    stats: { atk: 11, mag: 10, hp: 60 },
+    stats: { atk: 12, mag: 11, hp: 70 },
     difficulty: 'boss',
     rewardXp: 60,
     color: 0xff5a5a,
@@ -130,8 +135,8 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
   // by design.
   //
   // Stat rule: Orzag = client_legendaire × ORZAG_POWER_MULT (currently 2).
-  //   base  = 11 / 10 / 60
-  //   orzag = 22 / 20 / 120
+  //   base  = 12 / 11 / 70
+  //   orzag = 24 / 22 / 140
   // The rule is asserted by `balance.test.ts` — if you re-tune the main boss
   // the test will nag you to re-derive Orzag, keeping the 2× promise honest.
   // Reward XP bumped to 150 — beating Orzag is the true ending, worth more.
@@ -139,9 +144,9 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
     id: 'orzag_coeur_pierre',
     name: 'Orzag Cœur de Pierre',
     stats: {
-      atk: 11 * ORZAG_POWER_MULT,
-      mag: 10 * ORZAG_POWER_MULT,
-      hp:  60 * ORZAG_POWER_MULT,
+      atk: 12 * ORZAG_POWER_MULT,
+      mag: 11 * ORZAG_POWER_MULT,
+      hp:  70 * ORZAG_POWER_MULT,
     },
     difficulty: 'boss',
     rewardXp: 150,

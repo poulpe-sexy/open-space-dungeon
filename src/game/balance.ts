@@ -14,17 +14,45 @@
 
 import type { Difficulty } from '../data/types';
 
+// ── Run length / boss gating ───────────────────────────────────────────────
+// Consumed by `src/components/TileDungeon.tsx` (forced redirect to boss_room)
+// and `src/components/Hud.tsx` (progress chip).
+
+/**
+ * Number of *distinct* rooms the player must discover before the next new
+ * door they take routes them to `boss_room`.
+ *
+ * Semantics: the starting room counts as visit #1 (seeded by `TitleScreen`).
+ * When `visitedRooms.length === BOSS_ROOMS_NEEDED` and the player opens a door
+ * into a room they haven't seen yet, that door is overridden and they walk
+ * into the Administration's office instead. Backtracking through already-seen
+ * rooms never triggers the override — only a fresh discovery does.
+ *
+ * Tuning intuition:
+ *  - 10 (previous value) felt too short: L1 start → L5 L6 before boss, most
+ *    encounters skipped, no real attrition on HP/MP. Players called the run
+ *    trivial.
+ *  - 15 gives ~35–45 encounters before boss (≈50 % more than before), enough
+ *    trap/combat pressure that HP/MP management starts to matter, and lets
+ *    the player comfortably hit L6 without trivialising the fight.
+ *  - 20 would overstay the welcome on a single-session run; stick near 15.
+ */
+export const BOSS_ROOMS_NEEDED = 15;
+
 // ── Leveling & XP ───────────────────────────────────────────────────────────
 // Consumed by `src/game/leveling.ts`.
 
 /**
  * XP required to go from level L → L+1. Linear: `L * XP_PER_LEVEL_BASE`.
  * Total XP to reach level N = BASE × N × (N-1) / 2.
- *   base 10 → L5 = 100 XP, L7 = 210 XP, L10 = 450 XP.
- * A thorough run (≈20 combats, mostly normal/hard) banks ~160–200 XP
- * pre-boss, enough to go into the Administration fight at L5–L6.
+ *   base 12 → L5 = 120 XP, L6 = 180 XP, L7 = 252 XP.
+ *
+ * A thorough 15-room run (≈35–45 combats, mostly normal/hard) banks
+ * ~280–340 XP pre-boss, landing the player at L6 — the level the main boss
+ * is tuned against (see `MAIN_BOSS_REFERENCE` and the L6 2-shot test in
+ * `balance.test.ts`).
  */
-export const XP_PER_LEVEL_BASE = 10;
+export const XP_PER_LEVEL_BASE = 12;
 
 /**
  * Flat stat gain applied at every level-up (on top of current stats). Each
@@ -70,9 +98,14 @@ export const ORZAG_POWER_MULT = 2;
 // ── Main boss reference stats ───────────────────────────────────────────────
 // Used by `balance.test.ts` to assert the 2× rule between Administration
 // and Orzag. The live numbers are the source of truth in `src/data/enemies.ts`.
+//
+// Rebalance note (15-room run): bumped from 11/10/60 → 12/11/70. With the
+// longer run the player reaches the boss at L6 (not L5), so +1 atk / +1 mag
+// / +10 hp restores tension without breaking the 2-shot survival floor —
+// L6 Laurent has 29 HP, worst-case 2-shot = 2 × ceil(12 × 1.1) = 28.
 
 export const MAIN_BOSS_REFERENCE = {
-  atk: 11,
-  mag: 10,
-  hp:  60,
+  atk: 12,
+  mag: 11,
+  hp:  70,
 } as const;

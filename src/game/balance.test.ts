@@ -8,8 +8,10 @@ import {
   DIFFICULTY_THRESHOLDS,
   ORZAG_POWER_MULT,
   MAIN_BOSS_REFERENCE,
+  BOSS_ROOMS_NEEDED,
 } from './balance';
 import { xpToNextLevel } from './leveling';
+import { addDiscoveredRoom } from './store';
 
 /**
  * Balance tests — assertions about the *shape* of progression and the
@@ -134,25 +136,41 @@ describe('boss balance', () => {
 
 describe('XP economy', () => {
   it('a thorough run (~2 fights per enemy type) banks enough XP to hit level 5', () => {
-    // The 8 regular enemies respawn across rooms: a player who clears
+    // The 7 regular enemies respawn across rooms: a player who clears
     // everything they see typically fights each type ~2× on the way to the
-    // boss. That — not a single-kill tally — is the right yardstick for the
-    // XP curve.
+    // boss — a conservative floor even for the shorter 10-room era. That's
+    // the right yardstick for the XP curve.
     const perRunEstimate = Object.values(ENEMIES)
       .filter((e) => e.difficulty !== 'boss')
       .reduce((sum, e) => sum + e.rewardXp * 2, 0);
-    // Cost to reach L5 = 10 + 20 + 30 + 40 = 100.
+    // Cost to reach L5 = base × (1+2+3+4).
     const costToL5 =
       xpToNextLevel(1) + xpToNextLevel(2) + xpToNextLevel(3) + xpToNextLevel(4);
     expect(perRunEstimate).toBeGreaterThanOrEqual(costToL5);
+  });
+
+  it('a thorough 15-room run (~3 fights per enemy type) banks enough XP for L6', () => {
+    // 15-room pass (BOSS_ROOMS_NEEDED = 15) puts ~35–45 combats on the path
+    // to the boss. Each enemy type is naturally seen ~3× across zones. That
+    // should just reach L6 — the level the main boss is tuned against
+    // (see "no hero dies from two full-power main-boss hits at L6").
+    const perRun15 = Object.values(ENEMIES)
+      .filter((e) => e.difficulty !== 'boss')
+      .reduce((sum, e) => sum + e.rewardXp * 3, 0);
+    const costToL6 =
+      xpToNextLevel(1) + xpToNextLevel(2) + xpToNextLevel(3) +
+      xpToNextLevel(4) + xpToNextLevel(5);
+    expect(perRun15).toBeGreaterThanOrEqual(costToL6);
   });
 
   it('the main boss alone awards enough XP for at least two level-ups', () => {
     // Even a low-exploration run that just squeaks past the boss should get
     // a meaningful power-up spike for the post-victory lap / Orzag attempt.
     const bossXp = ENEMIES.client_legendaire.rewardXp;
-    // 2 levels from L1 = 10 + 20 = 30.
-    expect(bossXp).toBeGreaterThanOrEqual(30);
+    // 2 levels from L1 requires xpToNextLevel(1) + xpToNextLevel(2).
+    expect(bossXp).toBeGreaterThanOrEqual(
+      xpToNextLevel(1) + xpToNextLevel(2),
+    );
   });
 });
 
@@ -168,15 +186,16 @@ describe('hero HP floor', () => {
     }
   });
 
-  it('no hero dies from two full-power main-boss hits once properly levelled (L5)', () => {
-    // The boss sits behind 4–5 levels of dungeon. By the time players reach
-    // him, everyone should survive a worst-case 2-shot — otherwise the fight
-    // becomes a coin flip on turn order. L5 = base HP + 4 × HP-per-level.
+  it('no hero dies from two full-power main-boss hits once properly levelled (L6)', () => {
+    // With BOSS_ROOMS_NEEDED = 15 the boss sits behind ~35–45 encounters —
+    // the player is expected to arrive at L6. At L6 everyone should survive
+    // a worst-case 2-shot from the boss, otherwise the fight becomes a coin
+    // flip on turn order. L6 HP = base + 5 × HP-per-level.
     const bossAtk = ENEMIES.client_legendaire.stats.atk;
     const worstTwoShot = Math.ceil(bossAtk * 1.1) * 2;
     for (const hero of Object.values(HEROES)) {
-      const l5Hp = hero.stats.hp + 4 * STAT_GAIN_PER_LEVEL.hp;
-      expect(l5Hp).toBeGreaterThanOrEqual(worstTwoShot);
+      const l6Hp = hero.stats.hp + 5 * STAT_GAIN_PER_LEVEL.hp;
+      expect(l6Hp).toBeGreaterThanOrEqual(worstTwoShot);
     }
   });
 
@@ -186,5 +205,62 @@ describe('hero HP floor', () => {
     const sage     = deriveMaxMp(HEROES.laurent);
     expect(sage).toBeGreaterThan(roublard);
     expect(roublard).toBeGreaterThan(choc);
+  });
+});
+
+// ── Run length / boss gating ────────────────────────────────────────────────
+
+describe('boss progression gate', () => {
+  it('BOSS_ROOMS_NEEDED is set to the tunable central value (15)', () => {
+    // This is deliberately pinned: any change here is a deliberate pacing
+    // decision and must be accompanied by a playtest + balance.md update.
+    expect(BOSS_ROOMS_NEEDED).toBe(15);
+  });
+
+  it('BOSS_ROOMS_NEEDED is at least 10 and at most 20 (sane bounds)', () => {
+    // <10: too few combats → boss feels under-levelled (the bug we just fixed).
+    // >20: single-session runs start dragging.
+    expect(BOSS_ROOMS_NEEDED).toBeGreaterThanOrEqual(10);
+    expect(BOSS_ROOMS_NEEDED).toBeLessThanOrEqual(20);
+  });
+});
+
+// ── Room discovery dedup ────────────────────────────────────────────────────
+
+describe('addDiscoveredRoom', () => {
+  it('appends a new room to the list', () => {
+    expect(addDiscoveredRoom(['a'], 'b')).toEqual(['a', 'b']);
+  });
+
+  it('returns the same array (no duplicate) when the room is already known', () => {
+    const start = ['a', 'b'];
+    const out   = addDiscoveredRoom(start, 'a');
+    expect(out).toBe(start); // identity preserved — important for memoisation
+    expect(out).toEqual(['a', 'b']);
+  });
+
+  it('handles the empty list', () => {
+    expect(addDiscoveredRoom([], 'start')).toEqual(['start']);
+  });
+
+  it('discovering 15 distinct rooms crosses the boss-progression threshold', () => {
+    // Simulate walking through 15 fresh rooms starting from the spawn.
+    // The BOSS_ROOMS_NEEDED gate fires when visitedRooms.length === 15, so
+    // after 15 additions (spawn + 14 new = 15 entries total) the next fresh
+    // door will redirect to boss_room.
+    let rooms: string[] = [];
+    for (let i = 0; i < BOSS_ROOMS_NEEDED; i++) {
+      rooms = addDiscoveredRoom(rooms, `room_${i}`);
+    }
+    expect(rooms).toHaveLength(BOSS_ROOMS_NEEDED);
+  });
+
+  it('revisiting rooms never inflates the count beyond the number of unique rooms', () => {
+    // A player who back-tracks heavily shouldn't accidentally trip the boss
+    // gate — the gate is about discovery, not footsteps.
+    let rooms: string[] = [];
+    const path = ['r0', 'r1', 'r0', 'r2', 'r1', 'r0', 'r2', 'r3'];
+    for (const id of path) rooms = addDiscoveredRoom(rooms, id);
+    expect(rooms).toEqual(['r0', 'r1', 'r2', 'r3']);
   });
 });

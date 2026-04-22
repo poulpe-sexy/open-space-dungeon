@@ -7,14 +7,14 @@ export const EVENTS: Record<string, EventDef> = {
     text: 'Une vieille machine gronde dans le couloir. Un gobelet tremble sur le plateau.',
     choices: [
       {
-        label: 'Prendre un expresso (+4 MP)',
+        label: 'Prendre un expresso (+3 MP)',
         log: 'Tu bois. C\u2019est brûlant mais ça clarifie l\u2019esprit.',
-        effect: { mpDelta: 4 },
+        effect: { mpDelta: 3 },
       },
       {
-        label: 'Prendre un d\u00e9ca (+6 PV)',
+        label: 'Prendre un d\u00e9ca (+4 PV)',
         log: 'Étonnamment réconfortant. Tu respires.',
-        effect: { hpDelta: 6 },
+        effect: { hpDelta: 4 },
       },
       { label: 'Ignorer', log: 'Tu passes. La machine soupire.' },
     ],
@@ -38,9 +38,9 @@ export const EVENTS: Record<string, EventDef> = {
     text: 'Un poster affiche "TOGETHER WE SHIP". Tu sens une vague d\u2019énergie douteuse.',
     choices: [
       {
-        label: 'Respirer \u00e0 fond (+5 PV, +1 MP)',
+        label: 'Respirer \u00e0 fond (+3 PV, +1 MP)',
         log: 'Le cringe devient ta force.',
-        effect: { hpDelta: 5, mpDelta: 1 },
+        effect: { hpDelta: 3, mpDelta: 1 },
       },
       { label: 'D\u00e9tourner le regard', log: 'Tu ne céderas pas.' },
     ],
@@ -79,9 +79,9 @@ export const EVENTS: Record<string, EventDef> = {
     recommendedHero: 'Roublard',
     choices: [
       {
-        label: 'Fermer sans lire (+2 PV)',
+        label: 'Fermer sans lire (+1 PV)',
         log: 'Discipline. Tu sens les yeux de la hiérarchie sur toi, approbateurs.',
-        effect: { hpDelta: 2 },
+        effect: { hpDelta: 1 },
       },
       {
         label: 'Lire la slide (-4 PV, +3 MP)',
@@ -103,9 +103,9 @@ export const EVENTS: Record<string, EventDef> = {
     recommendedHero: 'Roublard',
     choices: [
       {
-        label: 'URGENT (classique, +3 PV)',
+        label: 'URGENT (classique, +2 PV)',
         log: 'L’ascenseur monte d’un étage. Rien ne brûle aujourd’hui.',
-        effect: { hpDelta: 3 },
+        effect: { hpDelta: 2 },
       },
       {
         label: 'CRITIQUE (risqué, -2 PV, +2 MP)',

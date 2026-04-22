@@ -14,14 +14,14 @@ export const TRAPS: Record<string, EventDef> = {
       'Un néon grésille juste au-dessus.',
     choices: [
       {
-        label: 'Foncer (-3 PV, traverse vite)',
+        label: 'Foncer (-4 PV, traverse vite)',
         log: 'Tu passes en force. Quelque chose pète dans un rack.',
-        effect: { hpDelta: -3 },
+        effect: { hpDelta: -4 },
       },
       {
-        label: 'Démêler patiemment (-1 MP, sûr)',
+        label: 'Démêler patiemment (-2 MP, sûr)',
         log: 'Tu extirpes le bon câble comme un·e ninja IT.',
-        effect: { mpDelta: -1 },
+        effect: { mpDelta: -2 },
       },
     ],
   },
@@ -33,9 +33,9 @@ export const TRAPS: Record<string, EventDef> = {
       'vrombit dans le mur.',
     choices: [
       {
-        label: 'Avancer en traînant les pieds (-5 PV)',
+        label: 'Avancer en traînant les pieds (-6 PV)',
         log: 'ZAP. Tu sens tes cheveux se dresser.',
-        effect: { hpDelta: -5 },
+        effect: { hpDelta: -6 },
       },
       {
         label: 'Sauter en rythme (0 PV, cringe)',
@@ -53,9 +53,9 @@ export const TRAPS: Record<string, EventDef> = {
     recommendedHero: 'Choc',
     choices: [
       {
-        label: 'Forcer la porte (-4 PV, immédiat)',
+        label: 'Forcer la porte (-5 PV, immédiat)',
         log: 'BANG. Tu sors. Les regards pèsent mais tu respires enfin.',
-        effect: { hpDelta: -4 },
+        effect: { hpDelta: -5 },
       },
       {
         label: 'Rester poli·e et attendre (-3 MP)',
@@ -72,9 +72,9 @@ export const TRAPS: Record<string, EventDef> = {
     recommendedHero: 'Choc',
     choices: [
       {
-        label: 'Signer tout sans lire (-3 PV, rapide)',
+        label: 'Signer tout sans lire (-4 PV, rapide)',
         log: 'Tu signes à l’arrache. Au bout du tunnel, quelqu’un t’applaudit, perplexe.',
-        effect: { hpDelta: -3 },
+        effect: { hpDelta: -4 },
       },
       {
         label: 'Lire chaque feuille (-2 MP, propre)',
@@ -91,9 +91,9 @@ export const TRAPS: Record<string, EventDef> = {
     recommendedHero: 'Choc',
     choices: [
       {
-        label: 'Passer en force (-3 PV)',
+        label: 'Passer en force (-4 PV)',
         log: 'Une branche te frappe dans le dos. Pas cool. Mais tu passes.',
-        effect: { hpDelta: -3 },
+        effect: { hpDelta: -4 },
       },
       {
         label: 'Attendre la fin du comité (-2 MP)',

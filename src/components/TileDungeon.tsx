@@ -5,16 +5,15 @@ import { ENEMIES } from '../data/enemies';
 import { KEY_ITEMS } from '../data/keyItems';
 import { pickRoomFlavor } from '../data/roomFlavors';
 import type { EncounterKind } from '../data/types';
-import { store, useStore, encounterKey } from '../game/store';
+import { store, useStore, encounterKey, addDiscoveredRoom } from '../game/store';
 import { DecorSprite } from './DecorSprite';
-/** The dedicated boss arena (11th room of the run). */
+import { BOSS_ROOMS_NEEDED } from '../game/balance';
+/** The dedicated boss arena — entered as the (BOSS_ROOMS_NEEDED + 1)-th room
+ *  of the run, either naturally via `ceo_corridor` or via the forced redirect
+ *  below once the player has discovered `BOSS_ROOMS_NEEDED` distinct rooms. */
 const BOSS_SCREEN_ID = 'boss_room';
 /** Key of the hand-crafted boss encounter placed inside boss_room at (7,3). */
 const BOSS_ENCOUNTER_KEY = `${BOSS_SCREEN_ID}:7,3`;
-/** Rooms the player must have visited before the next door leads to the boss
- *  room. Starting room is visited[0], so at length === 10 the next door forces
- *  boss_room — which becomes the 11th entry in visitedRooms. */
-const BOSS_ROOMS_NEEDED = 10;
 import { audio } from '../game/audio';
 import { getZoneColor } from '../game/zoneTheme';
 import { TileSprite } from './TileSprite';
@@ -87,15 +86,14 @@ function move(dx: number, dy: number) {
         return;
       }
 
-      // ── Track room visits & force boss_room as the 11th unique room ────────
-      // When the player would discover their 11th distinct room, redirect them
-      // to the dedicated boss arena instead. Backtracking through already-seen
-      // rooms is unaffected. If they're already heading to boss_room naturally
-      // via ceo_corridor, let them through — no redirect needed.
+      // ── Track room visits & force boss_room on fresh-discovery #N+1 ───────
+      // When the player would discover their (BOSS_ROOMS_NEEDED+1)-th distinct
+      // room, redirect them to the dedicated boss arena instead. Backtracking
+      // through already-seen rooms is unaffected. If they're already heading
+      // to boss_room naturally via ceo_corridor, let them through — no
+      // redirect needed.
       const isNewRoom    = !s.visitedRooms.includes(exit.toScreen);
-      const newVisited   = isNewRoom
-        ? [...s.visitedRooms, exit.toScreen]
-        : s.visitedRooms;
+      const newVisited   = addDiscoveredRoom(s.visitedRooms, exit.toScreen);
 
       const bossDefeated = s.defeatedEnemies.includes(BOSS_ENCOUNTER_KEY);
       const forceBoss =
@@ -140,9 +138,7 @@ function move(dx: number, dy: number) {
       };
 
       if (forceBoss) {
-        const bossVisited = s.visitedRooms.includes(BOSS_SCREEN_ID)
-          ? s.visitedRooms
-          : [...s.visitedRooms, BOSS_SCREEN_ID];
+        const bossVisited = addDiscoveredRoom(s.visitedRooms, BOSS_SCREEN_ID);
         // South-entry of boss_room (matches ceo_corridor's northTo entry).
         walkInto(BOSS_SCREEN_ID, 7, 8, bossVisited);
       } else {

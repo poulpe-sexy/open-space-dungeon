@@ -138,3 +138,19 @@ export const useStore = <T>(selector: (s: GameState) => T): T =>
 
 export const encounterKey = (screenId: string, x: number, y: number) =>
   `${screenId}:${x},${y}`;
+
+/**
+ * Append `screenId` to `rooms` only if it isn't already there. Used by the
+ * movement handler to maintain `state.visitedRooms` (the deduped list of
+ * distinct rooms the player has discovered this run).
+ *
+ * Returns the SAME array reference when `screenId` is already present — so
+ * React memoisation and identity checks stay stable across backtracking steps.
+ * A brand-new discovery produces a fresh array (spread), triggering a render.
+ */
+export function addDiscoveredRoom(
+  rooms: readonly string[],
+  screenId: string,
+): string[] {
+  return rooms.includes(screenId) ? (rooms as string[]) : [...rooms, screenId];
+}

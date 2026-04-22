@@ -3,7 +3,7 @@ import { SCREENS } from '../data/screens';
 import { SLICE_SCREENS } from '../data/sliceScreens';
 import { KEY_ITEMS } from '../data/keyItems';
 import { xpToNextLevel } from '../game/leveling';
-const BOSS_ROOMS_NEEDED = 10;
+import { BOSS_ROOMS_NEEDED } from '../game/balance';
 import { HeroPortrait } from './HeroPortrait';
 
 export function Hud() {
@@ -47,7 +47,7 @@ export function Hud() {
         title={
           bossOpen
             ? "La prochaine porte mène au bureau de l'Administration !"
-            : `Explorez ${BOSS_ROOMS_NEEDED} pièces — la 11ème sera le bureau de l'Administration`
+            : `Explorez ${BOSS_ROOMS_NEEDED} pièces — la ${BOSS_ROOMS_NEEDED + 1}ᵉ sera le bureau de l'Administration`
         }
         style={{ color: bossOpen ? 'var(--danger)' : undefined }}
       >

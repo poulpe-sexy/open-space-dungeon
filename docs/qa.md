@@ -55,8 +55,10 @@ Checklist de vérification manuelle avant chaque release. Le run doit pouvoir
 
 ## 5. Boss
 
-- [ ] Après avoir visité 10 salles distinctes, la prochaine porte mène
-      **systématiquement** à `boss_room` (la 11ᵉ salle).
+- [ ] Après avoir visité `BOSS_ROOMS_NEEDED` salles distinctes (15 par défaut),
+      la prochaine porte mène **systématiquement** à `boss_room` (la 16ᵉ salle).
+      La constante vit dans `src/game/balance.ts` — ajuster là si ce seuil
+      change à nouveau.
 - [ ] Le boss (Client Légendaire) est combatif, pas d’auto-combat parasite.
 - [ ] Victoire sur le boss → écran `victory`, la run se termine proprement.
 
@@ -77,9 +79,9 @@ Checklist de vérification manuelle avant chaque release. Le run doit pouvoir
 ## 8. HUD
 
 - [ ] Portrait héros + classe + PV + MP + niveau/XP + key items + compteur de
-      salles (x/10) visibles.
-- [ ] Au-delà de 10 salles visitées, l’emoji change de 🏢 en 💀, et la
-      tooltip mentionne « prochaine porte → Administration ».
+      salles (x/`BOSS_ROOMS_NEEDED`, 15 par défaut) visibles.
+- [ ] Une fois `BOSS_ROOMS_NEEDED` salles visitées, l’emoji change de 🏢 en 💀,
+      et la tooltip mentionne « prochaine porte → Administration ».
 
 ## 9. Visuels pixel-art & HiDPI
 
