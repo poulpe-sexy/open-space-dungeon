@@ -89,9 +89,11 @@ export const ZONE_POOLS: Record<string, ZonePool> = {
     // Zone II — first special enemies introduced (normal difficulty only).
     // client_blinde: tanky armoured (first encounter with armor mechanic).
     // client_moteur: self-buffs (learn to kill fast before ATK snowballs).
+    // NPC: Chavalier Matt apparaît ici (salles ~3-8).
     combat:  ['client_sceptique', 'client_exigeant', 'client_anxieux',
                'client_blinde', 'client_moteur'],
-    events:  ['coffee_machine', 'mystery_memo', 'slack_maudit', 'standup_eternel', 'comite_plantes'],
+    events:  ['coffee_machine', 'mystery_memo', 'slack_maudit', 'standup_eternel', 'comite_plantes',
+               'npc_matt_trombone', 'npc_matt_imprimante'],
     traps:   ['cable_snare', 'floor_shock', 'tunnel_validation',
                'chaise_roulettes', 'avalanche_postit', 'sol_cire', 'imprimante_infinie'],
     puzzles: ['coffee_order', 'cafe_quantique', 'frigo_maudit', 'mur_postit'],
@@ -100,9 +102,12 @@ export const ZONE_POOLS: Record<string, ZonePool> = {
   salles_reu: {
     // Zone III — debuffers start showing up (ATK & MAG sapping).
     // client_demoraliseur: drains ATK; client_lunatique: burst pattern.
+    // NPC: Matt (fin de ses scènes) + Max (début de ses scènes), salles ~6-11.
     combat:  ['client_exigeant', 'client_anxieux', 'client_chronophage',
                'client_blinde', 'client_demoraliseur', 'client_lunatique'],
-    events:  ['mystery_memo', 'pep_talk', 'slack_maudit', 'standup_eternel'],
+    events:  ['mystery_memo', 'pep_talk', 'slack_maudit', 'standup_eternel',
+               'npc_matt_reunion', 'npc_matt_mug',
+               'npc_max_postit', 'npc_max_chargeur'],
     traps:   ['cable_snare', 'floor_shock', 'reunion_infinie',
                'chaise_roulettes', 'avalanche_postit', 'neon_conformite',
                'imprimante_infinie', 'gobelet_maudit'],
@@ -111,9 +116,11 @@ export const ZONE_POOLS: Record<string, ZonePool> = {
   },
   technique: {
     // Zone IV — harder specials: MAG brouilleur, vampirique drain.
+    // NPC: Chevalier Max (salles ~9-13).
     combat:  ['client_fantome', 'client_zen', 'client_anxieux',
                'client_brouilleur', 'client_vampirique'],
-    events:  ['mystery_memo', 'slack_maudit', 'standup_eternel'],
+    events:  ['mystery_memo', 'slack_maudit', 'standup_eternel',
+               'npc_max_plante', 'npc_max_password'],
     traps:   ['floor_shock', 'cable_snare', 'tunnel_validation',
                'scanner_demoniaque', 'neon_conformite', 'portique_alignement',
                'imprimante_infinie'],

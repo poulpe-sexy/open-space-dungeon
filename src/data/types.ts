@@ -225,6 +225,16 @@ export interface EventDef {
    * Currently informational only (designer notes / future UI hint).
    */
   recommendedHero?: HeroClass;
+  /**
+   * NPC narrative events only. Sprite kind used for the portrait sidebar.
+   * 'combat' → skeleton warrior frames (Chavalier Matt).
+   * 'event'  → glowing figure frames (Chevalier Max).
+   * When set, EventOverlay enters a two-phase flow:
+   *   1. choices panel  2. NPC response + random reaction → dismiss.
+   */
+  portrait?: 'combat' | 'event';
+  /** Display name shown in the NPC portrait header. */
+  npcName?: string;
 }
 
 // ---------- Riddles (lean-tech themed) ----------------------------------------

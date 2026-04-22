@@ -494,6 +494,72 @@ span.title-logo {
 .event-panel p { margin: 0; line-height: 1.5; font-size: 13px; }
 .event-panel .choices { display: flex; flex-direction: column; gap: 6px; }
 
+/* ---------- NPC narrative event panel ---------- */
+.event-panel--npc {
+  border-color: #a8c8ff; /* armure bleue — différencie des events standard */
+  box-shadow: 0 0 14px rgba(168, 200, 255, 0.18);
+}
+
+/* Ligne "locuteur" : sprite pixel-art + nom du PNJ */
+.npc-speaker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+.npc-sprite {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+.npc-name {
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #a8c8ff;
+}
+
+/* Réponse du PNJ (phase résultat) */
+.npc-log {
+  margin: 0;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  border-left: 3px solid #a8c8ff;
+  padding-left: 12px;
+}
+
+/* Réaction bonus aléatoire */
+.npc-reaction {
+  margin: 0;
+  font-size: 11px;
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+/* Bouton de sortie de la scène */
+.npc-continue {
+  align-self: flex-end;
+  font-size: 12px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #a8c8ff;
+  color: #a8c8ff;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: background 0.15s, color 0.15s;
+}
+.npc-continue:hover {
+  background: rgba(168, 200, 255, 0.12);
+  color: var(--ink);
+}
+
 /* ---------- Riddle overlay (lean-tech devinettes) ---------- */
 .riddle-panel {
   margin: auto;

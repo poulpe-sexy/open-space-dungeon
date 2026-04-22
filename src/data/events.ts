@@ -1,6 +1,8 @@
 import type { EventDef } from './types';
+import { NPC_EVENTS } from './npcEvents';
 
 export const EVENTS: Record<string, EventDef> = {
+  ...NPC_EVENTS,
   coffee_machine: {
     id: 'coffee_machine',
     title: 'Machine à café runique',
