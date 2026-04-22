@@ -1448,6 +1448,33 @@ span.title-logo {
   image-rendering: pixelated;
 }
 
+/* ---------- Combat special-ability badges & stat modifiers ------------------- */
+
+/* Badge shown under the enemy name — announces the special archetype. */
+.combat-special-badge {
+  font-size: 10px;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: rgba(255,204,51,0.12);
+  border: 1px solid rgba(255,204,51,0.35);
+  padding: 2px 6px;
+  width: fit-content;
+}
+
+/* Combat log — special-ability lines stand out in amber. */
+.combat-log .line.special { color: var(--accent); font-style: italic; }
+
+/* Stat display: debuffed values shown in danger red, buffed in ok-green. */
+.combat-stat-debuff { color: var(--danger); }
+.combat-stat-buff   { color: var(--ok); }
+
+/* Upscale asset-pack sprite frames cleanly in the enemy portrait box.
+   16×16 px tiles are rendered at 4× (64px) — pixelated ensures no blur. */
+.enemy-sprite-box img {
+  image-rendering: pixelated;
+}
+
 /* ---------- Retro zone title ------------------------------------------------- */
 .retro-title {
   font-size: 11px;

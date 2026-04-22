@@ -1,5 +1,9 @@
 import type { Enemy } from './types';
 import { ORZAG_POWER_MULT } from '../game/balance';
+// Enemy frame sets (animated portraits from the 2D Pixel Dungeon Asset Pack)
+// are declared in src/game/assets.ts (ENEMY_FRAMES) and consumed by
+// CombatOverlay via EnemyPortrait. No import needed here — the frame lookup
+// is keyed by enemy.id at render time.
 
 /**
  * Some enemies (currently only Orzag, the hidden boss) ship with a dedicated
@@ -103,6 +107,103 @@ export const ENEMIES: Record<string, EnemyWithPortrait> = {
     description: "Sourit. Cite Sun Tzu. T'ignore poliment.",
     attackNames: ['Respiration consciente', 'Citation zen'],
   },
+  // ─── Special-mechanic enemies (6 new archetypes) ──────────────────────────
+  //
+  // These enemies come from the 2D Pixel Dungeon Asset Pack and each introduce
+  // a distinct combat pattern handled by CombatOverlay's special-ability engine.
+  // Their sprites live in public/assets/enemies/ (24 PNGs, 4 frames each).
+  // See ENEMY_FRAMES in src/game/assets.ts for the URL mapping.
+
+  // ── 1. Client Blindé — armour archetype ─────────────────────────────────
+  // sprite: skeleton2 v1  (steel-grey armoured skeleton)
+  // mechanic: every player hit is reduced by 4 (min 1) — high HP, low damage
+  client_blinde: {
+    id: 'client_blinde',
+    name: 'Client Blindé',
+    stats: { atk: 2, mag: 1, hp: 38 },
+    difficulty: 'normal',
+    rewardXp: 12,
+    color: 0x8b9ab8,
+    description: "Il est là depuis dix ans. Aucune critique ne traverse plus son blindage.",
+    attackNames: ['Procédure intangible', 'Non catégoriel', 'Refus tacite'],
+    special: { kind: 'armor', reduction: 4 },
+  },
+
+  // ── 2. Client Moteur — self-buff archetype ───────────────────────────────
+  // sprite: priest1 v1  (robed preacher with staff)
+  // mechanic: gains +2 ATK every 2 enemy turns — starts weak, becomes scary
+  client_moteur: {
+    id: 'client_moteur',
+    name: 'Client Moteur',
+    stats: { atk: 4, mag: 3, hp: 16 },
+    difficulty: 'normal',
+    rewardXp: 11,
+    color: 0xffaa33,
+    description: "S'autoproclame visionnaire. Son ego s'emballe à chaque tour.",
+    attackNames: ['Disruption positive', 'Synergies infinies', 'Vision Q4'],
+    special: { kind: 'buff_self', atkBonus: 2, every: 2 },
+  },
+
+  // ── 3. Client Démoraliseur — hero ATK-debuff archetype ───────────────────
+  // sprite: vampire v1  (caped drainer)
+  // mechanic: hero effective ATK -2 every 2 enemy turns, capped at 1 min
+  client_demoraliseur: {
+    id: 'client_demoraliseur',
+    name: 'Client Démoraliseur',
+    stats: { atk: 5, mag: 4, hp: 15 },
+    difficulty: 'normal',
+    rewardXp: 12,
+    color: 0x9b59b6,
+    description: "Sa spécialité : faire douter. Chaque frappe perd de sa conviction.",
+    attackNames: ['Critique sournoise', 'Commentaire non sollicité'],
+    special: { kind: 'debuff_atk', amount: 2, every: 2 },
+  },
+
+  // ── 4. Client Brouilleur — hero MAG-debuff archetype ────────────────────
+  // sprite: priest3 v1  (hunched dark-robed figure)
+  // mechanic: hero effective MAG -2 every 2 enemy turns, capped at 0 min
+  client_brouilleur: {
+    id: 'client_brouilleur',
+    name: 'Client Brouilleur',
+    stats: { atk: 3, mag: 7, hp: 14 },
+    difficulty: 'normal',
+    rewardXp: 12,
+    color: 0x2ecc71,
+    description: "Émet un bruit de fond permanent. La concentration devient impossible.",
+    attackNames: ['Bruit de fond', 'Interruption structurelle', 'Open space acoustique'],
+    special: { kind: 'debuff_mag', amount: 2, every: 2 },
+  },
+
+  // ── 5. Client Vampirique — HP-drain archetype ────────────────────────────
+  // sprite: vampire v2  (darker bat-cape)
+  // mechanic: drains 3 HP directly every 2 enemy turns ON TOP of the attack
+  client_vampirique: {
+    id: 'client_vampirique',
+    name: 'Client Vampirique',
+    stats: { atk: 5, mag: 5, hp: 22 },
+    difficulty: 'hard',
+    rewardXp: 15,
+    color: 0x8e44ad,
+    description: "Chaque interaction lui profite. Il repart toujours avec quelque chose de toi.",
+    attackNames: ['Extraction de valeur', 'Bilan asymétrique', 'ROI unilatéral'],
+    special: { kind: 'drain_hp', amount: 3, every: 2 },
+  },
+
+  // ── 6. Client Lunatique — alternate passive/burst archetype ─────────────
+  // sprite: skull v1  (glowing blue skull)
+  // mechanic: odd enemy turns → passive (observes); even → burst hit (ATK ×2)
+  client_lunatique: {
+    id: 'client_lunatique',
+    name: 'Client Lunatique',
+    stats: { atk: 7, mag: 5, hp: 20 },
+    difficulty: 'hard',
+    rewardXp: 14,
+    color: 0x3498db,
+    description: "Absent et silencieux un tour. Furieux et dévastateur le suivant.",
+    attackNames: ['Réveil brutal', 'Retour de flamme', 'Décharge émotionnelle'],
+    special: { kind: 'alternate', idleTurns: 1 },
+  },
+
   // ─── Final boss ────────────────────────────────────────────────────────────
   // History:
   //  - Original: 13 / 12 / 55. Too spiky (one-shot Laurent, forced L6+ start).

@@ -58,6 +58,29 @@ export interface Hero {
 // ---------- Enemies ------------------------------------------------------------
 export type Difficulty = 'easy' | 'normal' | 'hard' | 'boss';
 
+/**
+ * Optional special behaviour wired into CombatOverlay.
+ * Each variant is self-contained — the combat engine reads `kind` and applies
+ * the effect automatically. Effects are LOCAL to the fight (they reset on the
+ * next encounter) unless otherwise noted.
+ *
+ * | kind          | effect                                                      |
+ * |---------------|-------------------------------------------------------------|
+ * | armor         | flat damage reduction on every player hit (min 1)           |
+ * | buff_self     | enemy ATK increases every `every` enemy turns               |
+ * | debuff_atk    | hero effective ATK decreases every `every` enemy turns      |
+ * | debuff_mag    | hero effective MAG decreases every `every` enemy turns      |
+ * | drain_hp      | extra raw HP drain every `every` enemy turns (no armor)     |
+ * | alternate     | odd turns → passive (skip), even turns → burst (ATK ×2)    |
+ */
+export type EnemySpecial =
+  | { kind: 'armor';      reduction: number }
+  | { kind: 'buff_self';  atkBonus: number;  every: number }
+  | { kind: 'debuff_atk'; amount:   number;  every: number }
+  | { kind: 'debuff_mag'; amount:   number;  every: number }
+  | { kind: 'drain_hp';   amount:   number;  every: number }
+  | { kind: 'alternate';  idleTurns: number };
+
 export interface Enemy {
   id: string;
   name: string;
@@ -68,6 +91,8 @@ export interface Enemy {
   description: string;
   /** Flavor-only names used in the combat log. */
   attackNames: readonly string[];
+  /** Optional special ability handled by CombatOverlay. */
+  special?: EnemySpecial;
 }
 
 // ---------- Key items ----------------------------------------------------------

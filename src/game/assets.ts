@@ -40,6 +40,32 @@ export const HERO_TINT: Record<HeroId, string> = {
 /** Title logo displayed on the intro + title screens. Text fallback if missing. */
 export const TITLE_LOGO = asset('assets/branding/title-logo.png');
 
+/**
+ * Enemy portrait frame sets — 4-frame idle animations from the
+ * 2D Pixel Dungeon Asset Pack. Each entry maps an enemy id to the four
+ * sequential PNG paths. CombatOverlay renders them as AnimatedSprite.
+ *
+ * Sprite sources (all 16×16 px, displayed at 64×64 with pixelated scaling):
+ *   client_blinde       → skeleton2 v1  (armoured skeleton)
+ *   client_moteur       → priest1  v1   (robed preacher)
+ *   client_demoraliseur → vampire  v1   (caped drainer)
+ *   client_brouilleur   → priest3  v1   (hunched dark robe)
+ *   client_vampirique   → vampire  v2   (darker bat-cape)
+ *   client_lunatique    → skull    v1   (glowing blue skull)
+ */
+const E = asset('assets/enemies');
+const eFrames = (name: string) =>
+  [1, 2, 3, 4].map((i) => `${E}/${name}_${i}.png`);
+
+export const ENEMY_FRAMES: Record<string, string[]> = {
+  client_blinde:       eFrames('blinde'),
+  client_moteur:       eFrames('moteur'),
+  client_demoraliseur: eFrames('demoraliseur'),
+  client_brouilleur:   eFrames('brouilleur'),
+  client_vampirique:   eFrames('vampirique'),
+  client_lunatique:    eFrames('lunatique'),
+};
+
 /** Check if a public asset is served (used once on boot to log missing PNGs). */
 export const probeAsset = async (url: string): Promise<boolean> => {
   try {

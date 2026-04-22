@@ -8,8 +8,10 @@ import { audio } from '../game/audio';
 import type { SfxKey } from '../game/audio';
 import { encounterKey, store, useStore } from '../game/store';
 import { applyXpGain, STAT_GAIN_PER_LEVEL } from '../game/leveling';
+import { ENEMY_FRAMES } from '../game/assets';
 import { HeroPortrait } from './HeroPortrait';
 import { TileSprite } from './TileSprite';
+import { AnimatedSprite } from './AnimatedSprite';
 
 const TIER_SFX: Record<1 | 2 | 3, SfxKey> = {
   1: 'hit-light',
@@ -17,7 +19,7 @@ const TIER_SFX: Record<1 | 2 | 3, SfxKey> = {
   3: 'hit-heavy',
 };
 
-type LogLine = { kind: 'player' | 'enemy' | 'info'; text: string };
+type LogLine = { kind: 'player' | 'enemy' | 'info' | 'special'; text: string };
 type Turn = 'player' | 'enemy' | 'done';
 
 const jitter = () => 0.9 + Math.random() * 0.2; // ±10%
@@ -34,22 +36,50 @@ const rollEnemyDamage = (enemyAtk: number) =>
 const pickRandom = <T,>(arr: readonly T[]) =>
   arr[Math.floor(Math.random() * arr.length)];
 
+/** Human-readable badge label for each special kind. */
+function specialLabel(special: NonNullable<(typeof ENEMIES)[string]['special']>): string {
+  switch (special.kind) {
+    case 'armor':      return `🛡 Armure −${special.reduction}`;
+    case 'buff_self':  return `⬆ Frappe toutes les ${special.every} actions`;
+    case 'debuff_atk': return `⬇ Sape ton ATK`;
+    case 'debuff_mag': return `⬇ Brouille ta MAG`;
+    case 'drain_hp':   return `🩸 Drain PV`;
+    case 'alternate':  return `⚡ Imprévisible`;
+  }
+}
+
 /**
- * Renders an enemy portrait. If the enemy has a `portrait` PNG path we try to
- * load it; on 404 or any load error we fall back to the generic `TileSprite`
- * silhouette — so shipping without the PNG is non-blocking (the game still
- * runs, the silhouette just shows instead).
+ * Renders an enemy portrait.
+ * Priority: animated sprite frames from ENEMY_FRAMES (asset pack PNGs) →
+ * static portrait PNG (e.g. Orzag) → generic TileSprite silhouette.
  */
 function EnemyPortrait({
+  enemyId,
   portrait,
   altText,
   fallbackKind,
 }: {
+  enemyId: string;
   portrait?: string;
   altText: string;
   fallbackKind: 'combat' | 'boss';
 }) {
   const [broken, setBroken] = useState(false);
+
+  // Asset-pack enemies have a 4-frame animation registered in ENEMY_FRAMES.
+  const frames = ENEMY_FRAMES[enemyId];
+  if (frames?.length) {
+    return (
+      <AnimatedSprite
+        frames={frames}
+        fps={6}
+        size={64}
+        style={{ imageRendering: 'pixelated' }}
+      />
+    );
+  }
+
+  // Static portrait PNG (Orzag etc.)
   if (portrait && !broken) {
     return (
       <img
@@ -61,6 +91,8 @@ function EnemyPortrait({
       />
     );
   }
+
+  // Generic fallback: animated TileSprite silhouette tinted by enemy color.
   return <TileSprite kind={fallbackKind} size={64} />;
 }
 
@@ -81,18 +113,41 @@ export function CombatOverlay() {
   const [enemyMaxHp] = useState(enemy?.stats.hp ?? 1);
   const [log, setLog] = useState<LogLine[]>([]);
   const [turn, setTurn] = useState<Turn>('player');
+
+  // ── Special-ability modifiers (local to this fight) ─────────────────────
+  // We use refs for the "live" values (mutated during enemy turns without
+  // triggering effect re-runs) and matching state vars for UI display.
+  const enemyTurnCountRef = useRef(0);
+  const enemyAtkBonusRef  = useRef(0);
+  const heroAtkModRef     = useRef(0);
+  const heroMagModRef     = useRef(0);
+
+  const [enemyAtkBonus, setEnemyAtkBonus] = useState(0);
+  const [heroAtkMod,    setHeroAtkMod]    = useState(0);
+  const [heroMagMod,    setHeroMagMod]    = useState(0);
+
   const logRef = useRef<HTMLDivElement>(null);
 
-  // Some enemies (Orzag, the hidden boss) define an `introLine` that appears
-  // as a second info line right after their reveal. Completely optional — the
-  // base 8 enemies leave it unset and nothing changes.
+  // ── Reset on new combat ──────────────────────────────────────────────────
   useEffect(() => {
     if (!enemy) return;
     setEnemyHp(enemy.stats.hp);
+    // Reset all modifiers
+    enemyTurnCountRef.current = 0;
+    enemyAtkBonusRef.current  = 0;
+    heroAtkModRef.current     = 0;
+    heroMagModRef.current     = 0;
+    setEnemyAtkBonus(0);
+    setHeroAtkMod(0);
+    setHeroMagMod(0);
+
     const opening: LogLine[] = [
       { kind: 'info', text: `${enemy.name} apparaît. ${enemy.description}` },
     ];
     if (enemy.introLine) opening.push({ kind: 'info', text: enemy.introLine });
+    if (enemy.special) {
+      opening.push({ kind: 'special', text: `⚡ Capacité spéciale : ${specialLabel(enemy.special)}` });
+    }
     setLog(opening);
     setTurn('player');
   }, [enemy, pending?.screenId, pending?.encounter.x, pending?.encounter.y]);
@@ -101,35 +156,119 @@ export function CombatOverlay() {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
   }, [log]);
 
-  // Enemy auto-play
+  // ── Enemy auto-play (with special abilities) ─────────────────────────────
+  // Dependency array stays [turn, enemy] — modifiers are read from refs so
+  // their updates don't re-trigger this effect mid-combat.
   useEffect(() => {
     if (turn !== 'enemy' || !enemy) return;
     const t = setTimeout(() => {
-      const dmg = rollEnemyDamage(enemy.stats.atk);
+      enemyTurnCountRef.current += 1;
+      const turnCount = enemyTurnCountRef.current;
+      const sp = enemy.special;
+      const newLines: LogLine[] = [];
+
+      // ── 1. buff_self: enemy ATK increases every `every` enemy turns ──────
+      if (sp?.kind === 'buff_self' && turnCount % sp.every === 0) {
+        enemyAtkBonusRef.current += sp.atkBonus;
+        setEnemyAtkBonus(enemyAtkBonusRef.current);
+        newLines.push({
+          kind: 'special',
+          text: `⬆ ${enemy.name} se galvanise ! ATK +${sp.atkBonus} (total +${enemyAtkBonusRef.current}).`,
+        });
+      }
+
+      // ── 2. debuff_atk: hero effective ATK decreases every `every` turns ──
+      if (sp?.kind === 'debuff_atk' && turnCount % sp.every === 0) {
+        heroAtkModRef.current -= sp.amount;
+        setHeroAtkMod(heroAtkModRef.current);
+        newLines.push({
+          kind: 'special',
+          text: `⬇ ${enemy.name} sape ta conviction — ATK −${sp.amount}.`,
+        });
+      }
+
+      // ── 3. debuff_mag: hero effective MAG decreases every `every` turns ──
+      if (sp?.kind === 'debuff_mag' && turnCount % sp.every === 0) {
+        heroMagModRef.current -= sp.amount;
+        setHeroMagMod(heroMagModRef.current);
+        newLines.push({
+          kind: 'special',
+          text: `⬇ ${enemy.name} brouille tes sortilèges — MAG −${sp.amount}.`,
+        });
+      }
+
+      // ── 4. drain_hp: direct HP drain every `every` turns ─────────────────
+      if (sp?.kind === 'drain_hp' && turnCount % sp.every === 0) {
+        const currentHp = store.get().hp;
+        const drained = Math.min(sp.amount, currentHp);
+        const newHpAfterDrain = currentHp - drained;
+        store.set({ hp: newHpAfterDrain });
+        newLines.push({
+          kind: 'special',
+          text: `🩸 ${enemy.name} draine ${drained} PV directement.`,
+        });
+        if (newHpAfterDrain <= 0) {
+          audio.playSfx('fail');
+          setTurn('done');
+          setLog((l) => [
+            ...l, ...newLines,
+            { kind: 'info', text: "Tu t'effondres. Fin de run." },
+          ]);
+          setTimeout(() => {
+            store.set({ phase: 'defeat', pending: null });
+            bus.emit('defeat', undefined);
+          }, 900);
+          return;
+        }
+      }
+
+      // ── 5. alternate: passive turns skip the attack ───────────────────────
+      if (sp?.kind === 'alternate') {
+        const isIdle = turnCount % (sp.idleTurns + 1) !== 0;
+        if (isIdle) {
+          newLines.push({
+            kind: 'enemy',
+            text: `${enemy.name} t'observe en silence. (Attention au prochain tour.)`,
+          });
+          setLog((l) => [...l, ...newLines]);
+          setTurn('player');
+          return;
+        }
+      }
+
+      // ── Normal attack (or alternate burst) ───────────────────────────────
+      const isBurst = sp?.kind === 'alternate';
+      const effectiveAtk = enemy.stats.atk + enemyAtkBonusRef.current;
+      const rawDmg = rollEnemyDamage(effectiveAtk);
+      const dmg = isBurst ? rawDmg * 2 : rawDmg;
       const attackName = pickRandom(enemy.attackNames);
       const newHp = Math.max(0, store.get().hp - dmg);
       audio.playSfx('hit-light');
       store.set({ hp: newHp });
-      setLog((l) => [
-        ...l,
-        {
-          kind: 'enemy',
-          text: `${enemy.name} lance "${attackName}" — ${dmg} dégâts.`,
-        },
-      ]);
+
+      const attackText = isBurst
+        ? `💥 ${enemy.name} libère toute sa rage — "${attackName}" — ${dmg} dégâts (×2) !`
+        : `${enemy.name} lance "${attackName}" — ${dmg} dégâts.`;
+      newLines.push({ kind: 'enemy', text: attackText });
+
       if (newHp <= 0) {
         audio.playSfx('fail');
         setTurn('done');
-        setLog((l) => [...l, { kind: 'info', text: "Tu t'effondres. Fin de run." }]);
+        setLog((l) => [
+          ...l, ...newLines,
+          { kind: 'info', text: "Tu t'effondres. Fin de run." },
+        ]);
         setTimeout(() => {
           store.set({ phase: 'defeat', pending: null });
           bus.emit('defeat', undefined);
         }, 900);
       } else {
+        setLog((l) => [...l, ...newLines]);
         setTurn('player');
       }
     }, 700);
     return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turn, enemy]);
 
   if (!pending || !enemy || !hero) return null;
@@ -140,11 +279,18 @@ export function CombatOverlay() {
     .map((id) => ATTACKS[id])
     .filter((a): a is Attack => Boolean(a));
 
+  // ── Effective hero stats (debuffs applied in-combat only) ──────────────
+  const effectiveAtk = Math.max(1, hero.stats.atk + heroAtkMod);
+  const effectiveMag = Math.max(0, hero.stats.mag + heroMagMod);
+
   const playAttack = (atk: Attack) => {
     if (turn !== 'player') return;
     if (mp < atk.cost) return;
 
-    const dmg = rollHeroDamage(atk, hero.stats.atk, hero.stats.mag);
+    const rawDmg  = rollHeroDamage(atk, effectiveAtk, effectiveMag);
+    // armor: flat reduction per hit (min 1 always)
+    const armorRed = enemy.special?.kind === 'armor' ? enemy.special.reduction : 0;
+    const dmg      = Math.max(1, rawDmg - armorRed);
     const newEnemyHp = Math.max(0, enemyHp - dmg);
     audio.playSfx(TIER_SFX[atk.tier]);
     setEnemyHp(newEnemyHp);
@@ -152,11 +298,12 @@ export function CombatOverlay() {
     const newMp = Math.max(0, mp - atk.cost);
     store.set({ mp: newMp });
 
+    const armorNote = armorRed > 0 ? ` (armure −${armorRed})` : '';
     setLog((l) => [
       ...l,
       {
         kind: 'player',
-        text: `${hero.name} utilise ${atk.name} — ${dmg} dégâts${atk.cost ? ` (-${atk.cost} MP)` : ''}.`,
+        text: `${hero.name} utilise ${atk.name} — ${dmg} dégâts${armorNote}${atk.cost ? ` (-${atk.cost} MP)` : ''}.`,
       },
     ]);
 
@@ -194,22 +341,12 @@ export function CombatOverlay() {
         return lines;
       });
 
-      if (result.levelsGained > 0) {
-        // Small celebratory fanfare that layers on top of the hit 'success'.
-        audio.playSfx('level-up');
-      }
+      if (result.levelsGained > 0) audio.playSfx('level-up');
 
       const key = encounterKey(pending.screenId, pending.encounter.x, pending.encounter.y);
       setTimeout(() => {
-        // Safe lookup: if screen is missing from SCREENS (stale pending state
-        // after a reset, or authoring typo), treat it as a non-boss screen so
-        // we fall back to the normal "resume" flow instead of crashing.
         const isBoss = SCREENS[pending.screenId]?.isBossScreen ?? false;
         const leveled = result.levelsGained > 0;
-        // The secret Orzag fight uses a synthetic screenId (not in SCREENS),
-        // so `isBoss` above is false. Read the current phase to decide where
-        // to route: `secret-combat` → `true-victory`, boss screen → `victory`,
-        // anything else → back to dungeon navigation.
         const phaseNow = store.get().phase;
         const nextPhase: typeof phaseNow =
           phaseNow === 'secret-combat' ? 'true-victory'
@@ -219,13 +356,11 @@ export function CombatOverlay() {
           defeatedEnemies: [...s.defeatedEnemies, key],
           pending: null,
           phase: nextPhase,
-          // Leveling updates:
           hero:  result.hero,
           level: result.level,
           xp:    result.xp,
           maxHp: result.maxHp,
           maxMp: result.maxMp,
-          // Level-up full heal; otherwise no passive combat healing.
           hp:    leveled ? result.maxHp : s.hp,
           mp:    leveled ? result.maxMp : s.mp,
         }));
@@ -240,12 +375,24 @@ export function CombatOverlay() {
     }
   };
 
+  const atkDebuffed = heroAtkMod < 0;
+  const magDebuffed = heroMagMod < 0;
+  const atkBoosted  = enemyAtkBonus > 0;
+
   return (
     <div className="overlay">
       <div className="combat-stage">
         <div className="combat-side player">
           <div className="combat-name">
-            {hero.name} — {hero.className} · ATK {hero.stats.atk} · MAG {hero.stats.mag}
+            {hero.name} — {hero.className}
+            {' · ATK '}
+            <span className={atkDebuffed ? 'combat-stat-debuff' : ''}>
+              {effectiveAtk}{atkDebuffed ? ` (${heroAtkMod})` : ''}
+            </span>
+            {' · MAG '}
+            <span className={magDebuffed ? 'combat-stat-debuff' : ''}>
+              {effectiveMag}{magDebuffed ? ` (${heroMagMod})` : ''}
+            </span>
           </div>
           <div className="combat-portrait">
             <HeroPortrait hero={hero} />
@@ -257,8 +404,16 @@ export function CombatOverlay() {
         </div>
         <div className="combat-side enemy">
           <div className="combat-name">
-            {enemy.name} · ATK {enemy.stats.atk} · MAG {enemy.stats.mag} · {enemy.difficulty}
+            {enemy.name}
+            {' · ATK '}
+            <span className={atkBoosted ? 'combat-stat-buff' : ''}>
+              {enemy.stats.atk + enemyAtkBonus}{atkBoosted ? ` (+${enemyAtkBonus})` : ''}
+            </span>
+            {' · '}{enemy.difficulty}
           </div>
+          {enemy.special && (
+            <div className="combat-special-badge">{specialLabel(enemy.special)}</div>
+          )}
           <div className="combat-portrait">
             <div
               className="enemy-sprite-box"
@@ -267,6 +422,7 @@ export function CombatOverlay() {
               } as React.CSSProperties}
             >
               <EnemyPortrait
+                enemyId={enemy.id}
                 portrait={enemy.portrait}
                 altText={enemy.name}
                 fallbackKind={enemy.difficulty === 'boss' ? 'boss' : 'combat'}
