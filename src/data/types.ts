@@ -226,13 +226,13 @@ export interface EventDef {
    */
   recommendedHero?: HeroClass;
   /**
-   * NPC narrative events only. Sprite kind used for the portrait sidebar.
-   * 'combat' → skeleton warrior frames (Chavalier Matt).
-   * 'event'  → glowing figure frames (Chevalier Max).
+   * NPC narrative events only. Identifies which swordsman spritesheet to use.
+   * 'matt' → swordsman_matt.png (Swordsman lvl1 — Chavalier Matt).
+   * 'max'  → swordsman_max.png  (Swordsman lvl3 — Chevalier Max).
    * When set, EventOverlay enters a two-phase flow:
    *   1. choices panel  2. NPC response + random reaction → dismiss.
    */
-  portrait?: 'combat' | 'event';
+  portrait?: 'matt' | 'max';
   /** Display name shown in the NPC portrait header. */
   npcName?: string;
 }

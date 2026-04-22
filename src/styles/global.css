@@ -500,21 +500,42 @@ span.title-logo {
   box-shadow: 0 0 14px rgba(168, 200, 255, 0.18);
 }
 
-/* Ligne "locuteur" : sprite pixel-art + nom du PNJ */
+/* Ligne "locuteur" : portrait animé + nom du PNJ */
 .npc-speaker {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 2px;
+  gap: 12px;
+  margin-bottom: 4px;
 }
-.npc-sprite {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+/*
+ * Portrait animé — spritesheet swordsman (768×256, 12 frames × 4 directions,
+ * chaque cellule 64×64 px). On affiche la rangée 0 (face caméra) à ×2.
+ *
+ * Calcul :
+ *   background-size : 768×2 = 1536 px  ×  256×2 = 512 px
+ *   background-position-y : 0 px  → rangée 0 (face)
+ *   @keyframes npc-idle : de 0 à −1536 px en 12 steps
+ */
+.npc-portrait {
+  width: 128px;
+  height: 128px;
   flex-shrink: 0;
+  background-repeat: no-repeat;
+  background-position-y: 0px;
+  background-size: 1536px 512px;
   image-rendering: pixelated;
+  animation: npc-idle 1.2s steps(12) infinite;
+}
+.npc-portrait--matt {
+  background-image: url('/assets/npcs/swordsman_matt.png');
+}
+.npc-portrait--max {
+  background-image: url('/assets/npcs/swordsman_max.png');
+}
+@keyframes npc-idle {
+  from { background-position-x: 0px; }
+  to   { background-position-x: -1536px; }
 }
 .npc-name {
   font-size: 11px;

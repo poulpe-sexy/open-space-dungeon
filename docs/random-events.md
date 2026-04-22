@@ -26,13 +26,17 @@ export const EVENTS = { ...NPC_EVENTS, /* autres events */ };
 
 | Personnage | Portrait | Sprite source | Description |
 |---|---|---|---|
-| **Chavalier Matt** | `portrait: 'combat'` | `assets/dungeon/combat_1-4.png` | Squelette combattant — 4 frames animés |
-| **Chevalier Max** | `portrait: 'event'` | `assets/dungeon/event_1-4.png` | Figure lumineuse — 4 frames animés |
+| **Chavalier Matt** | `portrait: 'matt'` | `public/assets/npcs/swordsman_matt.png` | Swordsman lvl1 — 12 frames idle (face) |
+| **Chevalier Max** | `portrait: 'max'` | `public/assets/npcs/swordsman_max.png` | Swordsman lvl3 — 12 frames idle (face) |
 
-Ces sprites sont les frames existants du pack de donjon. Tous les sprites du pack
-sont des personnages en pixel-art 16×16. Les frames `combat_*` ont une apparence
-de guerrier, les frames `event_*` ont une apparence de figure mystérieuse — les
-deux conviennent à des "chevaliers" corporate-fantasy.
+Ces sprites viennent du pack **Craftpix Swordsman 1-3 level pixel top-down**.
+Spritesheets 768×256 px, format : 12 colonnes × 4 rangées, cellule 64×64 px.
+Rangée 0 = face caméra, utilisée pour les portraits. Affichés à ×2 (128×128 px) en CSS,
+animés via `@keyframes npc-idle` avec `steps(12)`.
+
+Fichiers source conservés dans le pack téléchargé :
+`PNG/Swordsman_lvl1/Without_shadow/Swordsman_lvl1_Idle_without_shadow.png`
+`PNG/Swordsman_lvl3/Without_shadow/Swordsman_lvl3_Idle_without_shadow.png`
 
 ---
 
@@ -69,7 +73,7 @@ npc_matt_exemple: {
   id: 'npc_matt_exemple',
   title: 'Le titre de la scène',
   text: 'Le texte d\u2019introduction — ce que Matt dit en arrivant.',
-  portrait: 'combat',     // Matt → 'combat' | Max → 'event'
+  portrait: 'matt',       // Matt → 'matt' | Max → 'max'
   npcName: 'Chavalier Matt',
   choices: [
     {

@@ -8,7 +8,6 @@ import { bus } from '../game/bus';
 import { audio } from '../game/audio';
 import { applyRewardItem } from '../game/riddles';
 import { encounterKey, store, useStore } from '../game/store';
-import { TileSprite } from './TileSprite';
 
 const resolveEncounterDef = (enc: ScreenEncounter | undefined): EventDef | null => {
   if (!enc) return null;
@@ -99,9 +98,7 @@ export function EventOverlay() {
       <div className="overlay">
         <div className="event-panel event-panel--npc">
           <div className="npc-speaker">
-            <div className="npc-sprite">
-              <TileSprite kind={event.portrait} size={36} />
-            </div>
+            <div className={`npc-portrait npc-portrait--${event.portrait}`} />
             <span className="npc-name">{event.npcName}</span>
           </div>
           <p className="npc-log">« {npcResult.log} »</p>
@@ -120,9 +117,7 @@ export function EventOverlay() {
       <div className="overlay">
         <div className="event-panel event-panel--npc">
           <div className="npc-speaker">
-            <div className="npc-sprite">
-              <TileSprite kind={event.portrait} size={36} />
-            </div>
+            <div className={`npc-portrait npc-portrait--${event.portrait}`} />
             <span className="npc-name">{event.npcName}</span>
           </div>
           <p>{event.text}</p>

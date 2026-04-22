@@ -9,8 +9,8 @@
  *   Max  → salles_reu (salles 6-11), technique (salles 9-13)
  *
  * Sprites :
- *   Matt → portrait: 'combat'  (frames combat_1-4.png — squelette combattant)
- *   Max  → portrait: 'event'   (frames event_1-4.png  — figure lumineuse)
+ *   Matt → portrait: 'matt'  (public/assets/npcs/swordsman_matt.png — Swordsman lvl1)
+ *   Max  → portrait: 'max'   (public/assets/npcs/swordsman_max.png  — Swordsman lvl3)
  */
 
 import type { EventDef } from './types';
@@ -37,7 +37,7 @@ const MATT_EVENTS: Record<string, EventDef> = {
       'Halte, aventurier ! Catastrophe majeure ! '
       + 'Le trombone stratégique a disparu du secteur nord ! '
       + 'Sans lui, tout classement devient hérésie !',
-    portrait: 'combat',
+    portrait: 'matt',
     npcName: 'Chavalier Matt',
     choices: [
       {
@@ -61,7 +61,7 @@ const MATT_EVENTS: Record<string, EventDef> = {
     text:
       'Par pitié, viens vite ! Une imprimante a péri en service actif. '
       + 'Elle a donné tout ce qu\u2019elle avait\u2026 y compris un bourrage niveau 4.',
-    portrait: 'combat',
+    portrait: 'matt',
     npcName: 'Chavalier Matt',
     choices: [
       {
@@ -85,7 +85,7 @@ const MATT_EVENTS: Record<string, EventDef> = {
     text:
       'Urgence absolue ! Il faut sécuriser immédiatement la salle de réunion B12. '
       + 'Elle est vide\u2026 mais d\u2019un vide hautement suspect.',
-    portrait: 'combat',
+    portrait: 'matt',
     npcName: 'Chavalier Matt',
     choices: [
       {
@@ -110,7 +110,7 @@ const MATT_EVENTS: Record<string, EventDef> = {
       'Aventurier ! Un mug est resté seul en salle de pause depuis l\u2019aube. '
       + 'Il n\u2019est ni lavé, ni revendiqué. '
       + 'Il faut agir avant qu\u2019il ne choisisse un camp.',
-    portrait: 'combat',
+    portrait: 'matt',
     npcName: 'Chavalier Matt',
     choices: [
       {
@@ -139,7 +139,7 @@ const MAX_EVENTS: Record<string, EventDef> = {
     text:
       'Vite ! Ce post-it doit rejoindre sa destinée avant la fin du cycle ! '
       + 'Je ne sais pas où il va, mais il y va intensément.',
-    portrait: 'event',
+    portrait: 'max',
     npcName: 'Chevalier Max',
     choices: [
       {
@@ -163,7 +163,7 @@ const MAX_EVENTS: Record<string, EventDef> = {
     text:
       'C\u2019est une crise logistique ! Il nous faut le dernier chargeur digne de ce nom ! '
       + 'Tous les autres ne transmettent que du courant sans conviction.',
-    portrait: 'event',
+    portrait: 'max',
     npcName: 'Chevalier Max',
     choices: [
       {
@@ -187,7 +187,7 @@ const MAX_EVENTS: Record<string, EventDef> = {
     text:
       'Regarde ! Cette plante verte n\u2019est plus alignée avec la vision du royaume ! '
       + 'Si personne n\u2019intervient, elle pourrait pencher idéologiquement.',
-    portrait: 'event',
+    portrait: 'max',
     npcName: 'Chevalier Max',
     choices: [
       {
@@ -211,7 +211,7 @@ const MAX_EVENTS: Record<string, EventDef> = {
     text:
       'Situation critique ! Le mot de passe a été oublié, mais il reste valide. '
       + 'Nous sommes donc verrouillés par quelque chose qui fonctionne parfaitement.',
-    portrait: 'event',
+    portrait: 'max',
     npcName: 'Chevalier Max',
     choices: [
       {
