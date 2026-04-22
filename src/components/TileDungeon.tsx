@@ -5,6 +5,7 @@ import { ENEMIES } from '../data/enemies';
 import { KEY_ITEMS } from '../data/keyItems';
 import { pickRoomFlavor } from '../data/roomFlavors';
 import type { EncounterKind } from '../data/types';
+import { EVENTS } from '../data/events';
 import { store, useStore, encounterKey, addDiscoveredRoom } from '../game/store';
 import { DecorSprite } from './DecorSprite';
 import { BOSS_ROOMS_NEEDED } from '../game/balance';
@@ -253,7 +254,13 @@ export function TileDungeon() {
   const activeDecor      = sessionDecorations[screenId] ?? {};
 
   // Build a fast encounter lookup by tile position
-  type EncInfo = { kind: EncounterKind; resolved: boolean; isBoss: boolean };
+  type EncInfo = {
+    kind: EncounterKind;
+    resolved: boolean;
+    isBoss: boolean;
+    /** Set for NPC narrative events — drives the swordsman tile sprite. */
+    npcPortrait?: 'matt' | 'max';
+  };
   const encAt = new Map<string, EncInfo>();
   for (const enc of activeEncounters) {
     const key      = encounterKey(screenId, enc.x, enc.y);
@@ -262,7 +269,10 @@ export function TileDungeon() {
       : resolvedEvents.includes(key);
     const isBoss = enc.kind === 'combat' && !!enc.enemyId &&
       ENEMIES[enc.enemyId]?.difficulty === 'boss';
-    encAt.set(`${enc.x},${enc.y}`, { kind: enc.kind, resolved, isBoss });
+    const npcPortrait = enc.kind === 'event' && enc.eventId
+      ? (EVENTS[enc.eventId]?.portrait as 'matt' | 'max' | undefined)
+      : undefined;
+    encAt.set(`${enc.x},${enc.y}`, { kind: enc.kind, resolved, isBoss, npcPortrait });
   }
 
   // Build exit lookup to mark door tiles
@@ -305,10 +315,19 @@ export function TileDungeon() {
                 {isPlayer && (
                   <TileSprite kind="player" tint={hero.tint} heroClass={hero.className} />
                 )}
-                {!isPlayer && enc && (
+                {!isPlayer && enc && !enc.npcPortrait && (
                   <TileSprite
                     kind={enc.isBoss ? 'boss' : enc.kind}
                     resolved={enc.resolved}
+                  />
+                )}
+                {!isPlayer && enc && enc.npcPortrait && (
+                  <div
+                    className={[
+                      'td-npc-sprite',
+                      `td-npc-sprite--${enc.npcPortrait}`,
+                      enc.resolved ? 'td-npc-sprite--done' : '',
+                    ].filter(Boolean).join(' ')}
                   />
                 )}
                 {!isPlayer && !enc && isDoor && (
