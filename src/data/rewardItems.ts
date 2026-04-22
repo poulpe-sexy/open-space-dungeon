@@ -148,6 +148,16 @@ export const REWARD_ITEMS: Record<RewardItemId, RewardItem> = {
     glyph: '🏁',
     bonus: { atk: 1 },
   },
+
+  // ── Item piège — portique d'alignement ────────────────────────────────────
+
+  laissez_passer: {
+    id: 'laissez_passer',
+    name: 'Laissez-passer B38',
+    description: "Signature illisible, tampon douteux, date effacée. Passe partout quand même.",
+    glyph: '🎫',
+    bonus: { atk: 1 },
+  },
 };
 
 export const REWARD_ITEM_IDS = Object.keys(REWARD_ITEMS) as RewardItemId[];

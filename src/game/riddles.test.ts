@@ -76,8 +76,8 @@ describe('RIDDLES / REWARD_ITEMS data integrity (local view)', () => {
     }
   });
 
-  it('ships exactly 14 riddles and 18 reward items', () => {
+  it('ships exactly 14 riddles and 19 reward items', () => {
     expect(Object.keys(RIDDLES).length).toBe(14);
-    expect(Object.keys(REWARD_ITEMS).length).toBe(18);
+    expect(Object.keys(REWARD_ITEMS).length).toBe(19);
   });
 });
