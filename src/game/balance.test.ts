@@ -87,12 +87,17 @@ describe('hero attack kits', () => {
     }
   });
 
-  it('Alphonse and Laurent (magic classes) are magic-only', () => {
-    for (const heroId of ['alphonse', 'laurent'] as const) {
-      for (const id of HEROES[heroId].attacks) {
-        expect(ATTACKS[id].kind).toBe('magic');
-      }
+  it('Laurent (Sage) is magic-only', () => {
+    for (const id of HEROES.laurent.attacks) {
+      expect(ATTACKS[id].kind).toBe('magic');
     }
+  });
+
+  it("Alphonse (Roublard) has a physical T1 and magic T2/T3", () => {
+    const [t1id, t2id, t3id] = HEROES.alphonse.attacks;
+    expect(ATTACKS[t1id].kind).toBe('physical');
+    expect(ATTACKS[t2id].kind).toBe('magic');
+    expect(ATTACKS[t3id].kind).toBe('magic');
   });
 
   it('each hero has at least one attack whose damage beats their free T1', () => {

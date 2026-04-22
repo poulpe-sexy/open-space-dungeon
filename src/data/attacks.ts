@@ -74,16 +74,16 @@ export const ATTACKS: Record<string, Attack> = {
       'Tu imposes un deadline irréaliste. Dévastateur — mais demande à souffler avant de recommencer.',
   },
 
-  // --- Alphonse / Roublard (all magic, scales MAG 5, balanced MP pool) -----
+  // --- Alphonse / Roublard (T1 physical, T2/T3 magic — kit hybride) ----------
   charme: {
     id: 'charme',
     name: 'Charme',
-    kind: 'magic',
+    kind: 'physical',
     tier: 1,
     power: 1.0,
     cost: 0,
     mpGain: T1_MP_GAIN,
-    description: 'Un sourire sincère. Désamorce les conflits simples — et récupère 1 MP.',
+    description: "Une poignée de main ferme au bon moment. Physique, direct — et récupère 1 MP.",
   },
   baratin: {
     id: 'baratin',
