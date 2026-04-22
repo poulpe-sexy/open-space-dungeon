@@ -52,6 +52,10 @@ export function TitleScreen() {
       defeatedEnemies: [],
       resolvedEvents: [],
       keyItems: [],
+      // These MUST be explicitly reset — store.set merges, so leftover values
+      // from a previous run would persist if omitted here.
+      rewardItems: [],
+      flags: {},
       pending: null,
       runSeed,
       sessionRoomShapes,

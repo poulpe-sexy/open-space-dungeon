@@ -100,12 +100,12 @@ const emit = () => listeners.forEach((l) => l());
  * an HP > maxHp bar that renders past 100 %.
  */
 function normalize(next: GameState): GameState {
-  const maxHp = Math.max(0, next.maxHp | 0);
-  const maxMp = Math.max(0, next.maxMp | 0);
-  const hp    = Math.max(0, Math.min(next.hp | 0, maxHp));
-  const mp    = Math.max(0, Math.min(next.mp | 0, maxMp));
-  const level = Math.max(1, next.level | 0);
-  const xp    = Math.max(0, next.xp | 0);
+  const maxHp = Math.max(0, Math.trunc(next.maxHp));
+  const maxMp = Math.max(0, Math.trunc(next.maxMp));
+  const hp    = Math.max(0, Math.min(Math.trunc(next.hp), maxHp));
+  const mp    = Math.max(0, Math.min(Math.trunc(next.mp), maxMp));
+  const level = Math.max(1, Math.trunc(next.level));
+  const xp    = Math.max(0, Math.trunc(next.xp));
   if (
     hp === next.hp && mp === next.mp &&
     maxHp === next.maxHp && maxMp === next.maxMp &&

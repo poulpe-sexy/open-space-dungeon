@@ -67,7 +67,7 @@ function pick<T>(arr: T[], rng: () => number): T {
 
 type Kind = 'combat' | 'event' | 'trap' | 'puzzle';
 
-interface ZonePool {
+export interface ZonePool {
   combat:  string[];
   events:  string[];
   traps:   string[];
@@ -76,7 +76,7 @@ interface ZonePool {
   weights: [number, number, number, number];
 }
 
-const ZONE_POOLS: Record<string, ZonePool> = {
+export const ZONE_POOLS: Record<string, ZonePool> = {
   accueil: {
     // Zone I — introductory. Special enemies start appearing from open_space.
     combat:  ['client_hesitant', 'client_sceptique'],
@@ -177,8 +177,10 @@ function makeEncounter(
         break;
     }
   }
-  // Fallback: always available
-  return { x, y, kind: 'combat', enemyId: pick(pool.combat, rng), once: true };
+  // Last-resort fallback: use the open_space combat pool which is always
+  // guaranteed to be non-empty. This prevents pick() from receiving [].
+  const fallbackCombat = pool.combat.length ? pool.combat : FALLBACK_POOL.combat;
+  return { x, y, kind: 'combat', enemyId: pick(fallbackCombat, rng), once: true };
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
@@ -293,10 +295,11 @@ export function generateAllEncounters(
       }
       // (If cx < 0, the room is completely packed — skip, shouldn't happen.)
       if (cx >= 0) {
+        const forceCombat = pool.combat.length ? pool.combat : FALLBACK_POOL.combat;
         encs.push({
           x: cx, y: cy,
           kind: 'combat',
-          enemyId: pick(pool.combat, rng),
+          enemyId: pick(forceCombat, rng),
           once: true,
         });
       }

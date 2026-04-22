@@ -5,7 +5,7 @@ Checklist de vérification manuelle avant chaque release. Le run doit pouvoir
 état incohérent et sans ralentissement sur un laptop moyen.
 
 À compléter avec `npm run build` (doit être vert, sans warning TypeScript) et
-`npm test` (65+ tests doivent passer).
+`npm test` (128+ tests doivent passer).
 
 ---
 
@@ -48,10 +48,21 @@ Checklist de vérification manuelle avant chaque release. Le run doit pouvoir
         « ✦ NIVEAU X ! » s’affiche et PV/MP repassent au max.
   - [ ] Un gros reward (ex. boss) peut déclencher **plusieurs** level-ups
         en un seul kill (voir `leveling.test.ts`).
+  - [ ] Signature (T3) grisée pendant 2 tours ennemis après utilisation.
 - [ ] **Événement** : les choix sont lisibles, le reward (HP/MP/keyItem)
       s’applique sans dépasser les plafonds.
+  - [ ] Un choix `grantRewardItemId` applique le bonus permanent une seule
+        fois par run (vérifier sur un 2ème run que l’objet n’est plus disponible).
 - [ ] **Piège / Puzzle** : le héros recommandé est mis en avant, la
       résolution dépense un coût correct.
+- [ ] **Riddle** : bonne réponse → objet affiché + bonus baked, mauvaise → feedback neutre.
+
+## 4b. Reset entre runs
+
+- [ ] Démarrer 2 runs successifs avec des héros différents :
+  - [ ] `rewardItems` vides au démarrage du 2ème run *(bug corrigé — était persisté)*
+  - [ ] `flags` vides au démarrage du 2ème run *(bug corrigé — était persisté)*
+  - [ ] `keyItems`, `resolvedEvents`, `defeatedEnemies` tous vides
 
 ## 5. Boss
 
@@ -101,8 +112,8 @@ Checklist de vérification manuelle avant chaque release. Le run doit pouvoir
 
 ## 11. Tests automatisés
 
-- [ ] `npm test` → **65 passed** (resolution 43, leveling 7, store 7,
-      generateEncounters 6, dataIntegrity 2).
+- [ ] `npm test` → **128 passed** (balance 33, resolution 43, leveling 7, store 7,
+      generateEncounters 8, riddles 9, dataIntegrity 2, robustness 19).
 - [ ] `npm run build` → pas d’erreur TypeScript, bundle < 300 kB brut.
 
 ---
@@ -126,3 +137,14 @@ Ces items ne bloquent pas un run mais sont documentés pour référence :
 6. **Pas de logs d’erreur persistés** — toutes les protections runtime
    (`dataIntegrity`, guards `SCREENS[id]?`) dégradent proprement mais
    n’envoient rien à un backend — non pertinent pour un jeu purement client.
+7. **`tampon_net` référencé deux fois** — par le riddle `ascenseur_priorites`
+   ET par le choix correct de `tunnel_validation`. Les deux peuvent en théorie
+   apparaître dans le même run (+4 maxHp cumulables). Très improbable en
+   pratique (riddle weight 10 %). Évaluer après playtest si un item dédié est
+   nécessaire.
+8. **React keys index** — `key={i}` reste dans `RiddleOverlay` (choices) et
+   `CombatOverlay` (log). Ces listes sont append-only, jamais réordonnées —
+   stable en pratique, pas de bug observable.
+9. **`s0.hero!` dans CombatOverlay** (ligne XP après kill) — assertion non-null
+   techniquement safe (le héros ne peut pas être null pendant un combat actif)
+   mais non narrowable par le compilateur. Inoffensif.

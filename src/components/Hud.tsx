@@ -38,8 +38,8 @@ export function Hud() {
         ✦ Niv {level} · {xp}/{xpNext} XP
       </div>
       {keyItems.length > 0 && (
-        <div className="hud-chip" title={keyItems.map((k) => KEY_ITEMS[k].name).join(' · ')}>
-          {keyItems.map((k) => KEY_ITEMS[k].glyph).join(' ')}
+        <div className="hud-chip" title={keyItems.map((k) => KEY_ITEMS[k]?.name ?? k).join(' · ')}>
+          {keyItems.map((k) => KEY_ITEMS[k]?.glyph ?? '?').join(' ')}
         </div>
       )}
       <div

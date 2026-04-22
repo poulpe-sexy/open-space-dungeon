@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { EVENTS } from '../data/events';
 import { TRAPS } from '../data/traps';
 import { PUZZLES } from '../data/puzzles';
-import type { EventChoice, EventDef, ScreenEncounter } from '../data/types';
+import type { EncounterKind, EventChoice, EventDef, ScreenEncounter } from '../data/types';
 import { bus } from '../game/bus';
 import { audio } from '../game/audio';
 import { applyRewardItem } from '../game/riddles';
@@ -16,8 +16,9 @@ const resolveEncounterDef = (enc: ScreenEncounter | undefined): EventDef | null 
   return null;
 };
 
-const TITLE_PREFIX: Record<string, string> = {
-  trap: '⚠ PIÈGE — ',
+// Only trap and puzzle get a prefix — event/combat/riddle show the title as-is.
+const TITLE_PREFIX: Partial<Record<EncounterKind, string>> = {
+  trap:   '⚠ PIÈGE — ',
   puzzle: '◆ ÉNIGME — ',
 };
 
@@ -44,8 +45,11 @@ export function EventOverlay() {
       const baseMp = Math.max(0, Math.min(s.maxMp, s.mp + mpDelta));
 
       // Apply permanent reward item if present and not already held.
-      const canGrant = rewardId && s.hero && !s.rewardItems.includes(rewardId);
-      const rr = canGrant ? applyRewardItem(s.hero!, s.maxHp, s.maxMp, rewardId!) : null;
+      // Inline the full condition so TypeScript narrows s.hero to non-null.
+      const rr =
+        rewardId && s.hero && !s.rewardItems.includes(rewardId)
+          ? applyRewardItem(s.hero, s.maxHp, s.maxMp, rewardId)
+          : null;
 
       return {
         hp:    rr ? Math.min(rr.maxHp, baseHp + rr.hpHealed) : baseHp,
@@ -75,7 +79,7 @@ export function EventOverlay() {
         <p>{event.text}</p>
         <div className="choices">
           {event.choices.map((c, i) => (
-            <button key={i} type="button" onClick={() => pickChoice(c)}>
+            <button key={`${event.id}-${i}`} type="button" onClick={() => pickChoice(c)}>
               {c.label}
             </button>
           ))}
