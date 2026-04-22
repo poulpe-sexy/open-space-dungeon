@@ -36,6 +36,47 @@ const rollEnemyDamage = (enemyAtk: number) =>
 const pickRandom = <T,>(arr: readonly T[]) =>
   arr[Math.floor(Math.random() * arr.length)];
 
+// ── Tier label system ────────────────────────────────────────────────────────
+//
+// Replaces the opaque "T1 / T2 / T3" prefix with immediately legible labels
+// that telegraph the role of each tier:
+//   Basique   — free, always available, recovers 1 MP → the "never stuck" safety net
+//   Technique — costs MP, no lockout, reliable mid-damage option
+//   Signature — big hit, gated by cooldown, the move you plan around
+//
+// When a Signature is on cooldown, the badge becomes "⏳ Nt" (N turns left)
+// so the remaining lockout is readable at a glance without reading the log.
+
+export type TierLabel = 'Basique' | 'Technique' | 'Signature';
+
+export function tierLabel(tier: 1 | 2 | 3): TierLabel {
+  switch (tier) {
+    case 1: return 'Basique';
+    case 2: return 'Technique';
+    case 3: return 'Signature';
+  }
+}
+
+/**
+ * One-line stat summary shown inside the attack button.
+ * Condenses kind · power · cost · mpGain · cooldown into a compact read.
+ * Examples:
+ *   T1 active  → "PHYS · ×1.0 · Gratuit · +1 MP"
+ *   T2         → "MAG · ×1.6 · 2 MP"
+ *   T3 active  → "MAG · ×2.0 · 7 MP · CD 2"
+ *   T3 locked  → "MAG · ×2.0 · 7 MP · ⏳ 2t"
+ */
+function attackTagline(atk: Attack, cd: number): string {
+  const kind    = atk.kind === 'physical' ? 'PHYS' : 'MAG';
+  const power   = `×${atk.power.toFixed(1)}`;
+  const costStr = atk.cost === 0 ? 'Gratuit' : `${atk.cost} MP`;
+  const parts   = [kind, power, costStr];
+  if (atk.mpGain) parts.push(`+${atk.mpGain} MP`);
+  if (cd > 0)         parts.push(`⏳ ${cd}t`);
+  else if (atk.cooldown) parts.push(`CD ${atk.cooldown}`);
+  return parts.join(' · ');
+}
+
 /** Human-readable badge label for each special kind. */
 function specialLabel(special: NonNullable<(typeof ENEMIES)[string]['special']>): string {
   switch (special.kind) {
@@ -490,8 +531,15 @@ export function CombatOverlay() {
 
       <div className="combat-actions">
         {attacks.map((atk) => {
-          const cd = attackCooldowns[atk.id] ?? 0;
+          const cd     = attackCooldowns[atk.id] ?? 0;
           const locked = cd > 0;
+          // Badge content: normal tier label, or remaining cooldown when locked
+          const badge  = locked ? `⏳ ${cd}t` : tierLabel(atk.tier);
+          const badgeCls = [
+            'attack-tier',
+            `tier-${atk.tier}`,
+            locked ? 'tier-locked' : '',
+          ].filter(Boolean).join(' ');
           return (
             <button
               key={atk.id}
@@ -501,18 +549,9 @@ export function CombatOverlay() {
               title={atk.description}
               className={locked ? 'attack-on-cooldown' : undefined}
             >
-              <strong>T{atk.tier} · {atk.name}</strong>
-              <small>
-                {atk.kind === 'physical' ? 'PHYS' : 'MAG'} ×{atk.power.toFixed(1)}
-                {' · '}{atk.cost} MP
-                {atk.mpGain ? ` · +${atk.mpGain} MP` : ''}
-                {locked
-                  ? ` · ⏳ Recharge : ${cd}`
-                  : atk.cooldown
-                    ? ` · CD ${atk.cooldown}`
-                    : ''}
-              </small>
-              <small>{atk.description}</small>
+              <span className={badgeCls}>{badge}</span>
+              <strong>{atk.name}</strong>
+              <small>{attackTagline(atk, cd)}</small>
             </button>
           );
         })}

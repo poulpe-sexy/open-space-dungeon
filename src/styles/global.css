@@ -283,6 +283,16 @@ span.title-logo {
 .hero-tag { font-size: 12px; line-height: 1.4; color: var(--ink); }
 .hero-stats { font-size: 11px; color: var(--ink-dim); }
 
+/* Attack kit preview on hero selection cards.
+   Uses the same .attack-tier chips as the combat screen for visual consistency. */
+.hero-attacks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  width: 100%;
+}
+
 .start-btn { align-self: flex-start; font-size: 14px; padding: 10px 18px; }
 
 /* ---------- HUD ---------- */
@@ -409,18 +419,61 @@ span.title-logo {
 .combat-log .line.enemy  { color: var(--danger); }
 .combat-log .line.info   { color: var(--ink-dim); }
 
+/* ── Attack tier badge system ────────────────────────────────────────────────
+ * Used in both the combat screen and the hero-selection card.
+ * Three tiers, each with a distinct color so the hierarchy is readable
+ * at a glance without reading the text:
+ *   Basique   (1) — green  : free, safe, always available
+ *   Technique (2) — white  : standard, costs MP, no lockout
+ *   Signature (3) — gold   : powerful, cooldown-gated, plan around it
+ * When T3 is on cooldown the badge switches to .tier-locked (muted amber).
+ */
+.attack-tier {
+  display: inline-block;
+  font-size: 9px;
+  font-family: monospace;
+  font-weight: bold;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 1px 5px 1px 4px;
+  border-radius: 2px;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.tier-1 {
+  color: var(--ok);
+  background: rgba(99, 230, 161, 0.10);
+  border: 1px solid rgba(99, 230, 161, 0.30);
+}
+.tier-2 {
+  color: var(--ink);
+  background: rgba(232, 236, 255, 0.07);
+  border: 1px solid rgba(232, 236, 255, 0.18);
+}
+.tier-3 {
+  color: var(--accent);
+  background: rgba(255, 204, 51, 0.10);
+  border: 1px solid rgba(255, 204, 51, 0.35);
+}
+/* Locked (cooldown active) — badge shows remaining turns instead of label */
+.tier-locked {
+  color: var(--ink-dim) !important;
+  background: rgba(138, 147, 184, 0.08) !important;
+  border-color: rgba(138, 147, 184, 0.22) !important;
+}
+
 .combat-actions {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 .combat-actions button {
   font-size: 12px;
   padding: 10px 8px;
-  min-height: 52px;
+  min-height: 64px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   align-items: flex-start;
   text-align: left;
 }
@@ -1469,16 +1522,12 @@ span.title-logo {
 .combat-stat-debuff { color: var(--danger); }
 .combat-stat-buff   { color: var(--ok); }
 
-/* T3 cooldown state — button grays out with a subtle locked look.
-   We rely on the built-in :disabled opacity but add an extra visual cue. */
+/* T3 cooldown state — button grays out; the .attack-tier badge already
+   shows the remaining turns (⏳ Nt) so no extra ::after trick needed. */
 .combat-actions button.attack-on-cooldown {
   opacity: 0.45;
-  border-color: rgba(138,147,184,0.3);
+  border-color: rgba(138, 147, 184, 0.3);
   cursor: not-allowed;
-}
-.combat-actions button.attack-on-cooldown strong::after {
-  content: ' 🔒';
-  font-size: 0.75em;
 }
 
 /* Upscale asset-pack sprite frames cleanly in the enemy portrait box.
