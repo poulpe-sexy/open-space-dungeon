@@ -247,14 +247,58 @@ const EXPL_PATTERN: PatternStep[] = [
   null,
 ];
 
-// Am arpeggio: A4 C5 E5 A5 E5 C5 — 118 BPM eighth notes
-const COMBAT_PATTERN: PatternStep[] = [
-  { freq: 440,    noteDur: 0.22 },
-  { freq: 523.25, noteDur: 0.22 },
-  { freq: 659.25, noteDur: 0.22 },
-  { freq: 880,    noteDur: 0.28 },
-  { freq: 659.25, noteDur: 0.22 },
-  { freq: 523.25, noteDur: 0.22 },
+// ── Combat theme — D minor, 95 BPM, 2 voices ────────────────────────────────
+//
+// Voice 1 (triangle, lead) : phrase de 16 croches avec silences.
+//   Contour descendant/suspensif — tension sans panique.
+// Voice 2 (square, basse)  : pédale de quarts D2/A2/F2/A2, ancrage harmonique.
+//
+// Choix stylistiques :
+//   - triangle  → timbre rond, beaucoup moins agressif que sawtooth
+//   - 95 BPM    → énergique mais pas frénétique (vs 118 BPM)
+//   - silences  → respiration, le joueur "lit" la musique comme une intention
+//   - basse grave → l'oreille comprend le danger sans être agressée
+
+const COMBAT_STEP = 60 / 95 / 2; // croche à 95 BPM ≈ 0.316 s
+
+// Voice 1 — Mélodie (triangle) : Dm  Gm  C  Dm
+const COMBAT_MELODY: PatternStep[] = [
+  { freq: 293.66, noteDur: 0.50 }, // D4  — tonique, ancre
+  null,
+  { freq: 349.23, noteDur: 0.25 }, // F4
+  { freq: 440.00, noteDur: 0.32 }, // A4
+  { freq: 392.00, noteDur: 0.25 }, // G4
+  { freq: 349.23, noteDur: 0.25 }, // F4
+  { freq: 293.66, noteDur: 0.50 }, // D4  — retour
+  null,
+  { freq: 261.63, noteDur: 0.38 }, // C4
+  null,
+  { freq: 329.63, noteDur: 0.25 }, // E4
+  { freq: 440.00, noteDur: 0.32 }, // A4
+  { freq: 392.00, noteDur: 0.25 }, // G4
+  { freq: 349.23, noteDur: 0.25 }, // F4
+  { freq: 329.63, noteDur: 0.50 }, // E4  — suspension
+  null,
+];
+
+// Voice 2 — Basse (square, grave) : quarts D2 A2 F2 A2
+const COMBAT_BASS: PatternStep[] = [
+  { freq:  73.42, noteDur: 0.55 }, // D2
+  null,
+  { freq:  73.42, noteDur: 0.45 }, // D2
+  null,
+  { freq: 110.00, noteDur: 0.55 }, // A2
+  null,
+  { freq: 130.81, noteDur: 0.50 }, // C3
+  null,
+  { freq:  73.42, noteDur: 0.55 }, // D2
+  null,
+  { freq: 110.00, noteDur: 0.45 }, // A2
+  null,
+  { freq:  87.31, noteDur: 0.55 }, // F2
+  null,
+  { freq: 110.00, noteDur: 0.50 }, // A2
+  null,
 ];
 
 // ── Title theme — sombre 8-bit, D minor, 85 BPM, 3 voices ───────────────────
@@ -324,6 +368,75 @@ const TITLE_ARPEGGIO: PatternStep[] = [
 ];
 
 interface IMusicPlayer { setVol(v: number): void; stop(): void; }
+
+// =============================================================================
+// CombatMusicPlayer — 2 voix, D mineur, 95 BPM
+// =============================================================================
+
+class CombatMusicPlayer implements IMusicPlayer {
+  private ctx:    AudioContext;
+  private master: GainNode;
+  private timers: ReturnType<typeof setInterval>[] = [];
+  private nextT:  number[] = [];
+  private steps:  number[] = [];
+  private dead = false;
+
+  private static VOICES = [
+    { pattern: COMBAT_MELODY, waveform: 'triangle' as OscillatorType, gain: 0.22 },
+    { pattern: COMBAT_BASS,   waveform: 'square'   as OscillatorType, gain: 0.14 },
+  ];
+
+  constructor(ctx: AudioContext, vol: number) {
+    this.ctx = ctx;
+    this.master = ctx.createGain();
+    this.master.gain.setValueAtTime(0, ctx.currentTime);
+    this.master.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.8);
+    this.master.connect(ctx.destination);
+
+    for (let i = 0; i < CombatMusicPlayer.VOICES.length; i++) {
+      this.nextT.push(ctx.currentTime + 0.05);
+      this.steps.push(0);
+      const vi = i;
+      this.tick(vi);
+      this.timers.push(setInterval(() => this.tick(vi), 50));
+    }
+  }
+
+  private tick(v: number) {
+    if (this.dead) return;
+    const voice = CombatMusicPlayer.VOICES[v];
+    while (this.nextT[v] < this.ctx.currentTime + 0.15) {
+      const s = voice.pattern[this.steps[v] % voice.pattern.length];
+      if (s) {
+        const osc = this.ctx.createOscillator();
+        const g   = this.ctx.createGain();
+        osc.type = voice.waveform;
+        osc.frequency.setValueAtTime(s.freq, this.nextT[v]);
+        g.gain.setValueAtTime(0, this.nextT[v]);
+        g.gain.linearRampToValueAtTime(voice.gain, this.nextT[v] + 0.015);
+        g.gain.setValueAtTime(voice.gain, this.nextT[v] + s.noteDur * 0.75);
+        g.gain.exponentialRampToValueAtTime(0.0001, this.nextT[v] + s.noteDur);
+        osc.connect(g); g.connect(this.master);
+        osc.start(this.nextT[v]);
+        osc.stop(this.nextT[v] + s.noteDur + 0.02);
+      }
+      this.nextT[v] += COMBAT_STEP;
+      this.steps[v]++;
+    }
+  }
+
+  setVol(v: number) {
+    if (this.dead) return;
+    this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.05);
+  }
+
+  stop() {
+    this.dead = true;
+    this.timers.forEach((t) => clearInterval(t));
+    this.master.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3);
+    setTimeout(() => { try { this.master.disconnect(); } catch { /* ignore */ } }, 2500);
+  }
+}
 
 class TitleMusicPlayer implements IMusicPlayer {
   private ctx:    AudioContext;
@@ -410,7 +523,7 @@ class MusicPlayer {
   private readonly noteGain: number;
   private dead = false;
 
-  constructor(ctx: AudioContext, key: MusicKey, vol: number) {
+  constructor(ctx: AudioContext, _key: MusicKey, vol: number) {
     this.ctx = ctx;
 
     this.master = ctx.createGain();
@@ -418,18 +531,12 @@ class MusicPlayer {
     this.master.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.8);
     this.master.connect(ctx.destination);
 
-    if (key === 'exploration') {
-      this.pattern  = EXPL_PATTERN;
-      this.stepDur  = 60 / 58;        // quarter note @ 58 BPM ≈ 1.034 s
-      this.waveform = 'triangle';
-      this.noteGain = 0.65;
-      this.startDrone();
-    } else {
-      this.pattern  = COMBAT_PATTERN;
-      this.stepDur  = 60 / 118 / 2;   // eighth note @ 118 BPM ≈ 0.254 s
-      this.waveform = 'sawtooth';
-      this.noteGain = 0.30;
-    }
+    // MusicPlayer is exploration-only; combat is handled by CombatMusicPlayer.
+    this.pattern  = EXPL_PATTERN;
+    this.stepDur  = 60 / 58;        // quarter note @ 58 BPM ≈ 1.034 s
+    this.waveform = 'triangle';
+    this.noteGain = 0.65;
+    this.startDrone();
 
     this.nextTime = ctx.currentTime + 0.05;
     this.schedule();
@@ -551,6 +658,12 @@ class AudioManager {
     // Title theme: always procedural, 3-voice chiptune, no file fallback.
     if (key === 'title') {
       this.musicPlayer = new TitleMusicPlayer(ctx, vol);
+      return;
+    }
+
+    // Combat: 2-voice procedural (CombatMusicPlayer), no file fallback.
+    if (key === 'combat') {
+      this.musicPlayer = new CombatMusicPlayer(ctx, vol);
       return;
     }
 
