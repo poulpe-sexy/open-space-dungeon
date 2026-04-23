@@ -1,11 +1,12 @@
 import { useSyncExternalStore } from 'react';
 import { store } from './store';
+import { SCREENS } from '../data/screens';
 
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
 
-export type MusicKey = 'exploration' | 'combat' | 'title';
+export type MusicKey = 'exploration' | 'combat' | 'boss' | 'title';
 
 export type SfxKey =
   | 'hit-light'
@@ -28,6 +29,7 @@ const B = import.meta.env.BASE_URL;
 const MUSIC_SRC: Record<MusicKey, string> = {
   exploration: `${B}assets/audio/music/exploration-dungeon.mp3`,
   combat:      `${B}assets/audio/music/combat.mp3`,
+  boss:        '',  // always procedural — no audio file
   title:       '',  // always procedural — no audio file
 };
 
@@ -367,7 +369,149 @@ const TITLE_ARPEGGIO: PatternStep[] = [
   { freq: 277.18, noteDur: 0.28 }, // C#4
 ];
 
+// ── Boss theme — D mineur, 112 BPM, 3 voix ──────────────────────────────────
+//
+// Un cran au-dessus du combat normal : plus rapide (112 vs 95 BPM), plus dense
+// (3 voix vs 2), mélodie square grave et assertive, ostinato triangle incessant.
+//
+// Voice 1 (square, lead)    : phrase de 16 croches — ouverture D5 forte,
+//                             descente Bb4 (degré ♭7, note sombre), montée E5.
+// Voice 2 (square, basse)   : noires D2/A2/G2/A2, pulsation menaçante.
+// Voice 3 (triangle, pad)   : ostinato F4-A4 en croches, tension continue.
+
+const BOSS_STEP = 60 / 112 / 2; // croche à 112 BPM ≈ 0.268 s
+
+// Voice 1 — Lead dramatique (square)
+const BOSS_MELODY: PatternStep[] = [
+  { freq: 587.33, noteDur: 0.50 }, // D5  — frappe d'ouverture
+  null,
+  { freq: 698.46, noteDur: 0.24 }, // F5
+  { freq: 659.25, noteDur: 0.24 }, // E5
+  { freq: 587.33, noteDur: 0.24 }, // D5
+  { freq: 523.25, noteDur: 0.24 }, // C5
+  { freq: 466.16, noteDur: 0.42 }, // Bb4 — note sombre (♭VII)
+  null,
+  { freq: 440.00, noteDur: 0.40 }, // A4  — dominante
+  null,
+  { freq: 523.25, noteDur: 0.24 }, // C5
+  { freq: 587.33, noteDur: 0.24 }, // D5
+  { freq: 659.25, noteDur: 0.40 }, // E5  — tension
+  { freq: 587.33, noteDur: 0.24 }, // D5
+  null,
+  null,
+];
+
+// Voice 2 — Basse pulsée (square, grave)
+const BOSS_BASS: PatternStep[] = [
+  { freq:  73.42, noteDur: 0.55 }, // D2
+  null,
+  { freq:  73.42, noteDur: 0.45 }, // D2
+  null,
+  { freq: 110.00, noteDur: 0.55 }, // A2
+  null,
+  { freq: 130.81, noteDur: 0.55 }, // C3
+  null,
+  { freq:  73.42, noteDur: 0.55 }, // D2
+  null,
+  { freq: 110.00, noteDur: 0.45 }, // A2
+  null,
+  { freq:  98.00, noteDur: 0.55 }, // G2
+  null,
+  { freq: 110.00, noteDur: 0.55 }, // A2 — demi-cadence
+  null,
+];
+
+// Voice 3 — Ostinato (triangle, discret) : F4-A4 incessant, moteur rythmique
+const BOSS_COUNTER: PatternStep[] = [
+  { freq: 349.23, noteDur: 0.22 }, // F4
+  { freq: 440.00, noteDur: 0.22 }, // A4
+  { freq: 349.23, noteDur: 0.22 }, // F4
+  { freq: 440.00, noteDur: 0.22 }, // A4
+  { freq: 329.63, noteDur: 0.22 }, // E4
+  { freq: 440.00, noteDur: 0.22 }, // A4
+  { freq: 329.63, noteDur: 0.22 }, // E4
+  { freq: 440.00, noteDur: 0.22 }, // A4
+  { freq: 349.23, noteDur: 0.22 }, // F4
+  { freq: 440.00, noteDur: 0.22 }, // A4
+  { freq: 523.25, noteDur: 0.22 }, // C5
+  { freq: 440.00, noteDur: 0.22 }, // A4
+  { freq: 392.00, noteDur: 0.22 }, // G4
+  { freq: 440.00, noteDur: 0.22 }, // A4
+  { freq: 392.00, noteDur: 0.22 }, // G4
+  null,
+];
+
 interface IMusicPlayer { setVol(v: number): void; stop(): void; }
+
+// =============================================================================
+// BossMusicPlayer — 3 voix, D mineur, 112 BPM
+// =============================================================================
+
+class BossMusicPlayer implements IMusicPlayer {
+  private ctx:    AudioContext;
+  private master: GainNode;
+  private timers: ReturnType<typeof setInterval>[] = [];
+  private nextT:  number[] = [];
+  private steps:  number[] = [];
+  private dead = false;
+
+  private static VOICES = [
+    { pattern: BOSS_MELODY,   waveform: 'square'   as OscillatorType, gain: 0.22 },
+    { pattern: BOSS_BASS,     waveform: 'square'   as OscillatorType, gain: 0.14 },
+    { pattern: BOSS_COUNTER,  waveform: 'triangle' as OscillatorType, gain: 0.08 },
+  ];
+
+  constructor(ctx: AudioContext, vol: number) {
+    this.ctx = ctx;
+    this.master = ctx.createGain();
+    this.master.gain.setValueAtTime(0, ctx.currentTime);
+    this.master.gain.linearRampToValueAtTime(vol, ctx.currentTime + 1.0);
+    this.master.connect(ctx.destination);
+
+    for (let i = 0; i < BossMusicPlayer.VOICES.length; i++) {
+      this.nextT.push(ctx.currentTime + 0.05);
+      this.steps.push(0);
+      const vi = i;
+      this.tick(vi);
+      this.timers.push(setInterval(() => this.tick(vi), 50));
+    }
+  }
+
+  private tick(v: number) {
+    if (this.dead) return;
+    const voice = BossMusicPlayer.VOICES[v];
+    while (this.nextT[v] < this.ctx.currentTime + 0.15) {
+      const s = voice.pattern[this.steps[v] % voice.pattern.length];
+      if (s) {
+        const osc = this.ctx.createOscillator();
+        const g   = this.ctx.createGain();
+        osc.type = voice.waveform;
+        osc.frequency.setValueAtTime(s.freq, this.nextT[v]);
+        g.gain.setValueAtTime(0, this.nextT[v]);
+        g.gain.linearRampToValueAtTime(voice.gain, this.nextT[v] + 0.012);
+        g.gain.setValueAtTime(voice.gain, this.nextT[v] + s.noteDur * 0.75);
+        g.gain.exponentialRampToValueAtTime(0.0001, this.nextT[v] + s.noteDur);
+        osc.connect(g); g.connect(this.master);
+        osc.start(this.nextT[v]);
+        osc.stop(this.nextT[v] + s.noteDur + 0.02);
+      }
+      this.nextT[v] += BOSS_STEP;
+      this.steps[v]++;
+    }
+  }
+
+  setVol(v: number) {
+    if (this.dead) return;
+    this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.05);
+  }
+
+  stop() {
+    this.dead = true;
+    this.timers.forEach((t) => clearInterval(t));
+    this.master.gain.setTargetAtTime(0, this.ctx.currentTime, 0.4);
+    setTimeout(() => { try { this.master.disconnect(); } catch { /* ignore */ } }, 2500);
+  }
+}
 
 // =============================================================================
 // CombatMusicPlayer — 2 voix, D mineur, 95 BPM
@@ -661,9 +805,15 @@ class AudioManager {
       return;
     }
 
-    // Combat: 2-voice procedural (CombatMusicPlayer), no file fallback.
+    // Combat: 2-voice procedural, no file fallback.
     if (key === 'combat') {
       this.musicPlayer = new CombatMusicPlayer(ctx, vol);
+      return;
+    }
+
+    // Boss: 3-voice procedural, no file fallback.
+    if (key === 'boss') {
+      this.musicPlayer = new BossMusicPlayer(ctx, vol);
       return;
     }
 
@@ -791,14 +941,21 @@ export const audio = new AudioManager();
 // ---------------------------------------------------------------------------
 
 export function initAudioRouting() {
-  let lastPhase = '';
+  // Use a composite key so boss combat ('combat:boss') and regular combat
+  // ('combat') are treated as distinct transitions by the dedup guard.
+  let lastKey = '';
 
   const route = () => {
-    const { phase } = store.get();
-    if (phase === lastPhase) return;
-    lastPhase = phase;
+    const state = store.get();
+    const isBoss =
+      state.phase === 'combat' &&
+      !!state.pending?.screenId &&
+      (SCREENS[state.pending.screenId]?.isBossScreen ?? false);
+    const key = state.phase + (isBoss ? ':boss' : '');
+    if (key === lastKey) return;
+    lastKey = key;
 
-    switch (phase) {
+    switch (state.phase) {
       case 'title':
         audio.playMusic('title');
         break;
@@ -809,7 +966,7 @@ export function initAudioRouting() {
         audio.playMusic('exploration');
         break;
       case 'combat':
-        audio.playMusic('combat');
+        audio.playMusic(isBoss ? 'boss' : 'combat');
         break;
       case 'victory':
       case 'defeat':
