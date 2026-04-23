@@ -1,6 +1,4 @@
 import { useStore } from '../game/store';
-import { SCREENS } from '../data/screens';
-import { SLICE_SCREENS } from '../data/sliceScreens';
 import { KEY_ITEMS } from '../data/keyItems';
 import { xpToNextLevel } from '../game/leveling';
 import { BOSS_ROOMS_NEEDED } from '../game/balance';
@@ -14,11 +12,9 @@ export function Hud() {
   const maxMp    = useStore((s) => s.maxMp);
   const level    = useStore((s) => s.level);
   const xp       = useStore((s) => s.xp);
-  const screenId = useStore((s) => s.currentScreenId);
   const keyItems = useStore((s) => s.keyItems);
   const visited  = useStore((s) => s.visitedRooms.length);
   if (!hero) return null;
-  const screen   = SCREENS[screenId] ?? SLICE_SCREENS[screenId];
   const bossOpen = visited >= BOSS_ROOMS_NEEDED;
   const xpNext   = xpToNextLevel(level);
   return (
@@ -53,7 +49,6 @@ export function Hud() {
       >
         {bossOpen ? '💀' : '🏢'} {Math.min(visited, BOSS_ROOMS_NEEDED)}/{BOSS_ROOMS_NEEDED}
       </div>
-      <div className="hud-chip" style={{ marginLeft: 'auto' }}>{screen?.title ?? ''}</div>
     </div>
   );
 }
