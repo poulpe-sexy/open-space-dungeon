@@ -317,6 +317,106 @@ span.title-logo {
   z-index: 5;
   pointer-events: none;
 }
+
+/* Bouton "?" en haut à droite du HUD */
+.hud-help-btn {
+  pointer-events: auto;
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: bold;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--ink-dim);
+  color: var(--ink-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: none;
+  letter-spacing: 0;
+  transition: border-color 0.12s, color 0.12s;
+}
+.hud-help-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Overlay foncé derrière le panneau */
+.help-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 38px 12px 0;
+  z-index: 50;
+}
+
+/* Panneau d'aide */
+.help-panel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--ink-dim);
+  padding: 18px 20px 16px;
+  width: 320px;
+  max-height: calc(100% - 50px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 12px;
+}
+
+.help-panel-close {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 22px; height: 22px;
+  padding: 0;
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid var(--ink-dim);
+  color: var(--ink-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: none;
+  letter-spacing: 0;
+  pointer-events: auto;
+}
+.help-panel-close:hover { border-color: var(--danger); color: var(--danger); }
+
+.help-section h4 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 3px;
+}
+.help-section p {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.help-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.help-table td {
+  padding: 3px 6px 3px 0;
+  vertical-align: top;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.help-table td:first-child {
+  color: var(--accent);
+  font-weight: bold;
+  white-space: nowrap;
+  width: 24px;
+}
 .hud .hud-chip {
   background: rgba(0,0,0,0.6);
   border: 1px solid var(--ink-dim);
