@@ -51,7 +51,16 @@ function move(dx: number, dy: number) {
   const decorOnScreen = s.sessionDecorations[s.currentScreenId];
   if (decorOnScreen && decorOnScreen[`${nx},${ny}`]) return;
 
-  store.set({ playerX: nx, playerY: ny });
+  // Preserve facing on pure-vertical moves; flip only when moving horizontally.
+  const nextFacing = dx === 0 ? s.facing : dx > 0 ? 'right' : 'left';
+  store.set({
+    playerX: nx,
+    playerY: ny,
+    facing: nextFacing,
+    stepCount: s.stepCount + 1,
+    lastDx: dx,
+    lastDy: dy,
+  });
 
   // Use session-generated encounters if available, else fall back to static
   const encounters = s.sessionEncounters[s.currentScreenId] ?? sc.encounters;

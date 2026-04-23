@@ -40,6 +40,16 @@ export interface GameState {
   currentScreenId: string;
   playerX: number;
   playerY: number;
+  /** Which way the hero sprite is facing — flipped horizontally when 'left'. */
+  facing: 'left' | 'right';
+  /** Monotonically increasing counter — bumped on every successful move.
+   *  React `key`s off this to retrigger the walk-step animation on each step. */
+  stepCount: number;
+  /** Direction of the last successful step (−1/0/+1). Drives the brief
+   *  slide-in that precedes the bounce so the player appears to walk into the
+   *  new tile instead of teleporting. */
+  lastDx: number;
+  lastDy: number;
   defeatedEnemies: string[]; // keys like "screenId:x,y"
   resolvedEvents: string[];
   keyItems: KeyItemId[];
@@ -73,6 +83,10 @@ const INITIAL: GameState = {
   currentScreenId: 'reception',
   playerX: 2,
   playerY: 5,
+  facing: 'right',
+  stepCount: 0,
+  lastDx: 0,
+  lastDy: 0,
   defeatedEnemies: [],
   resolvedEvents: [],
   keyItems: [],

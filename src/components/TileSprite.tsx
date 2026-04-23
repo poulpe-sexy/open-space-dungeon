@@ -12,6 +12,7 @@
 
 import type { EncounterKind, HeroClass } from '../data/types';
 import { AnimatedSprite } from './AnimatedSprite';
+import { useStore } from '../game/store';
 
 export type SpriteKind = EncounterKind | 'door' | 'player' | 'boss';
 
@@ -68,28 +69,12 @@ export function TileSprite({
   //    width: auto respects the sprite's natural aspect ratio.
   //    Absolute positioning lets the sprite overflow upward when needed.
   if (kind === 'player') {
-    // On the tile map, default to 48 px tall (≈ full tile height).
-    // Callers can pass a different size for portraits etc.
-    const h = size === 32 ? 48 : size;
     return (
-      <img
+      <HeroWalkSprite
         src={PLAYER_SPRITE[heroClass]}
-        style={{
-          imageRendering: 'pixelated',
-          height: `${h}px`,
-          width: 'auto',
-          maxWidth: '52px',
-          display: 'block',
-          position: 'absolute',
-          bottom: '1px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          opacity,
-          filter: `drop-shadow(0 0 6px ${tint ?? 'var(--accent)'})`,
-          zIndex: 2,
-        }}
-        aria-hidden
-        alt=""
+        size={size}
+        opacity={opacity}
+        tint={tint}
       />
     );
   }
@@ -102,5 +87,68 @@ export function TileSprite({
       size={size}
       style={{ opacity }}
     />
+  );
+}
+
+// ── Walking animation wrapper ────────────────────────────────────────────────
+//
+// Given a single idle PNG, this simulates a walk by layering four sober,
+// mutually-reinforcing effects:
+//
+//   1. Idle loop — a permanent, very subtle Y-bounce + micro-rotation so the
+//      hero "breathes" even when standing still.
+//   2. Step pulse — each successful move bumps `stepCount` in the store; we
+//      use that as a React `key`, which remounts the element and retriggers
+//      a one-shot, stronger bounce/oscillation (the walk "step").
+//   3. Slide-in — the step animation also starts a few pixels away from the
+//      target in the direction the hero came from, giving the feel of
+//      walking *into* the new tile instead of teleporting onto it.
+//   4. Shadow pulse — a ground shadow that shrinks as the hero rises,
+//      strengthening the bounce perception.
+//
+// Facing is a pure horizontal flip of the whole stack (img + shadow).
+// Preserved on vertical moves so the hero doesn't "snap straight" when
+// climbing stairs.
+
+interface HeroWalkSpriteProps {
+  src: string;
+  size: number;
+  opacity: number;
+  tint?: string;
+}
+
+function HeroWalkSprite({ src, size, opacity, tint }: HeroWalkSpriteProps) {
+  const facing    = useStore((s) => s.facing);
+  const stepCount = useStore((s) => s.stepCount);
+  const lastDx    = useStore((s) => s.lastDx);
+
+  const h = size === 32 ? 48 : size;
+  // Slide-in offset — the sprite starts one step "behind" and animates forward.
+  // Magnitude kept small (6 px) so it feels like a step, not a dash.
+  const slideX = lastDx * -6;
+
+  return (
+    <div
+      key={stepCount}
+      className="hero-walk"
+      style={{
+        // `--walk-slide-x` is read by the step keyframe's 0 % frame (see CSS).
+        ['--walk-slide-x' as string]: `${slideX}px`,
+        ['--walk-facing' as string]: facing === 'left' ? '-1' : '1',
+      } as React.CSSProperties}
+    >
+      <div className="hero-walk-shadow" />
+      <img
+        src={src}
+        className="hero-walk-img"
+        style={{
+          height: `${h}px`,
+          opacity,
+          filter: `drop-shadow(0 0 6px ${tint ?? 'var(--accent)'})`,
+        }}
+        aria-hidden
+        alt=""
+      />
+    </div>
   );
 }
