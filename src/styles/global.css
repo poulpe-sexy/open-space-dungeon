@@ -71,10 +71,19 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .stage {
   position: relative;
-  width: 960px;
-  height: 640px;
-  max-width: 100vw;
-  max-height: 100vh;
+  /*
+   * Maintien du ratio 3:2 (960×640) sur tous les viewports.
+   *
+   * width = min(960px, 100vw, 100vh × 960/640)
+   *   → jamais plus large que le viewport
+   *   → jamais plus large que ce que la hauteur du viewport autorise (ratio)
+   * aspect-ratio impose ensuite la hauteur correspondante.
+   *
+   * Résultat : le stage se réduit proportionnellement sur les petits/larges
+   * écrans 16:9, sans jamais distordre le contenu.
+   */
+  width: min(960px, 100vw, calc(100vh * 960 / 640));
+  aspect-ratio: 960 / 640;
   background: #000;
   border: 2px solid var(--ink-dim);
   overflow: hidden;
