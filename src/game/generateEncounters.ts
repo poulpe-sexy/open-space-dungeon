@@ -206,6 +206,23 @@ export function generateAllEncounters(
   const rng = makeRng(seed);
   const result: Record<string, ScreenEncounter[]> = {};
 
+  // ── NPC exclusivity — pick ONE NPC per run ───────────────────────────────
+  // Matt and Max must never cohabit the same run: their absurdist scenes lose
+  // impact if the player encounters both in a single playthrough.
+  // The seed-driven coin flip is deterministic: same seed → same NPC.
+  const npcThisRun: 'matt' | 'max' = rng() < 0.5 ? 'matt' : 'max';
+  const excludePrefix = npcThisRun === 'matt' ? 'npc_max_' : 'npc_matt_';
+
+  // Build filtered zone pools that only include the chosen NPC's events.
+  // Regular events (no npc_ prefix) are always kept.
+  const runPools: Record<string, ZonePool> = {};
+  for (const [zoneId, pool] of Object.entries(ZONE_POOLS)) {
+    runPools[zoneId] = {
+      ...pool,
+      events: pool.events.filter((id) => !id.startsWith(excludePrefix)),
+    };
+  }
+
   // Per-run riddle pool — shuffled once, popped as we place riddle encounters.
   // This guarantees each riddle appears AT MOST once per run (each unique
   // riddle grants a unique reward item, so duplicates would stack the same
@@ -223,7 +240,7 @@ export function generateAllEncounters(
       continue;
     }
 
-    const pool = ZONE_POOLS[screen.zoneId] ?? FALLBACK_POOL;
+    const pool = runPools[screen.zoneId] ?? FALLBACK_POOL;
     // Use the procedural shape for this run if provided, otherwise fall back
     // to the static layout.
     const tiles = shapes?.[screen.id] ?? screen.tiles;
