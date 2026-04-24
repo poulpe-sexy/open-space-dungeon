@@ -270,7 +270,11 @@ span.title-logo {
 
 .hero-portrait {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  /* Portrait PNGs are all taller than wide (~0.81 – 0.88 W/H).
+     Using 4/5 (0.8) keeps the container slightly taller than every image,
+     so `object-fit: contain` fills the full width without side bars
+     (any excess sits as a thin top/bottom band matching the black bg). */
+  aspect-ratio: 4 / 5;
   background: #000;
   border: 1px solid var(--ink-dim);
   display: flex;
