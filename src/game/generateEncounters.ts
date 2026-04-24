@@ -153,19 +153,29 @@ function pickKind(pool: ZonePool, rng: () => number): Kind {
   return 'puzzle';
 }
 
+/** Shared mutable state threaded through makeEncounter to limit NPC events. */
+interface RunContext {
+  riddleStack: string[];
+  /**
+   * Flipped to `true` the moment the first NPC event (prefix `npc_`) is
+   * placed anywhere in the run. All subsequent calls filter out NPC events,
+   * guaranteeing that Matt or Max appears **exactly once** per run.
+   */
+  npcPlaced: boolean;
+}
+
 function makeEncounter(
   x: number,
   y: number,
   pool: ZonePool,
   rng: () => number,
-  /** Mutable stack of riddle IDs remaining for this run. Pop from the end. */
-  riddleStack: string[],
+  ctx: RunContext,
 ): ScreenEncounter {
   // Riddle draw is independent of the zone kind-weights. We roll a small
   // chance on every encounter to turn it into a riddle — but only if the
   // per-run riddle stack isn't exhausted (each riddle appears at most once).
-  if (riddleStack.length > 0 && rng() * 100 < RIDDLE_EVENT_WEIGHT) {
-    const riddleId = riddleStack.pop()!;
+  if (ctx.riddleStack.length > 0 && rng() * 100 < RIDDLE_EVENT_WEIGHT) {
+    const riddleId = ctx.riddleStack.pop()!;
     return { x, y, kind: 'riddle', riddleId, once: true };
   }
 
@@ -177,10 +187,19 @@ function makeEncounter(
         if (pool.combat.length)
           return { x, y, kind: 'combat', enemyId: pick(pool.combat, rng), once: true };
         break;
-      case 'event':
-        if (pool.events.length)
-          return { x, y, kind: 'event', eventId: pick(pool.events, rng), once: true };
+      case 'event': {
+        // Once an NPC event has been placed this run, strip all npc_* entries
+        // so the NPC never appears more than once.
+        const availableEvents = ctx.npcPlaced
+          ? pool.events.filter((id) => !id.startsWith('npc_'))
+          : pool.events;
+        if (availableEvents.length) {
+          const eventId = pick(availableEvents, rng);
+          if (eventId.startsWith('npc_')) ctx.npcPlaced = true;
+          return { x, y, kind: 'event', eventId, once: true };
+        }
         break;
+      }
       case 'trap':
         if (pool.traps.length)
           return { x, y, kind: 'trap', trapId: pick(pool.traps, rng), once: true };
@@ -232,6 +251,9 @@ export function generateAllEncounters(
     const j = Math.floor(rng() * (i + 1));
     [riddleStack[i], riddleStack[j]] = [riddleStack[j], riddleStack[i]];
   }
+
+  // Shared run context threaded through makeEncounter.
+  const ctx: RunContext = { riddleStack, npcPlaced: false };
 
   for (const screen of Object.values(SCREENS)) {
     // Boss rooms: keep the hand-crafted encounter (the boss must always be there)
@@ -295,7 +317,7 @@ export function generateAllEncounters(
     ];
 
     const encs: ScreenEncounter[] = picks.map(([x, y]) =>
-      makeEncounter(x, y, pool, rng, riddleStack),
+      makeEncounter(x, y, pool, rng, ctx),
     );
 
     // ── Guarantee at least one combat encounter per room ─────────────────
