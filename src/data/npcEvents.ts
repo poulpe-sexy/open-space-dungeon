@@ -1,16 +1,14 @@
 /**
- * Événements narratifs NPC — Chavalier Matt & Chevalier Max
+ * Événements narratifs NPC — Chevalier Max
  *
  * Ces événements sont purement narratifs : aucun effet sur les PV/MP/XP.
  * Ils utilisent le flux à deux phases de EventOverlay (choix → réponse).
  *
  * Distribution dans les zones :
- *   Matt → open_space (salles 3-8), salles_reu (salles 6-11)
- *   Max  → salles_reu (salles 6-11), technique (salles 9-13)
+ *   Max → salles_reu (salles 6-11), technique (salles 9-13)
  *
- * Sprites :
- *   Matt → portrait: 'matt'  (public/assets/npcs/swordsman_matt.png — Swordsman lvl1)
- *   Max  → portrait: 'max'   (public/assets/npcs/swordsman_max.png  — Swordsman lvl3)
+ * Sprite :
+ *   Max → portrait: 'max' (public/assets/npcs/swordsman_max.png — Swordsman lvl3)
  */
 
 import type { EventDef } from './types';
@@ -26,112 +24,9 @@ export const NPC_REACTIONS: readonly string[] = [
   'Le problème demeure entier, mais avec davantage de solennité.',
 ];
 
-// ── Chavalier Matt (4 scènes) ─────────────────────────────────────────────────
-
-const MATT_EVENTS: Record<string, EventDef> = {
-
-  npc_matt_trombone: {
-    id: 'npc_matt_trombone',
-    title: 'Le trombone stratégique',
-    text:
-      'Halte, aventurier ! Catastrophe majeure ! '
-      + 'Le trombone stratégique a disparu du secteur nord ! '
-      + 'Sans lui, tout classement devient hérésie !',
-    portrait: 'matt',
-    npcName: 'Chavalier Matt',
-    choices: [
-      {
-        label: 'Quel trombone exactement ?',
-        log: 'Le petit. Pas celui qui attache. Celui qui rassure.',
-      },
-      {
-        label: 'Je vais fouiller immédiatement.',
-        log: 'Trop tard. J\u2019en ai trouvé un autre, mais il n\u2019avait pas la bonne énergie.',
-      },
-      {
-        label: 'Ce problème me semble… secondaire.',
-        log: 'Secondaire ?! C\u2019est exactement ce qu\u2019aurait dit le chaos.',
-      },
-    ],
-  },
-
-  npc_matt_imprimante: {
-    id: 'npc_matt_imprimante',
-    title: 'L\u2019imprimante tombée au champ d\u2019honneur',
-    text:
-      'Par pitié, viens vite ! Une imprimante a péri en service actif. '
-      + 'Elle a donné tout ce qu\u2019elle avait\u2026 y compris un bourrage niveau 4.',
-    portrait: 'matt',
-    npcName: 'Chavalier Matt',
-    choices: [
-      {
-        label: 'Je m\u2019incline devant son sacrifice.',
-        log: 'Ta dignité honore sa mémoire et le bac 2.',
-      },
-      {
-        label: 'Peut-on encore la redémarrer ?',
-        log: 'Redémarrer ? Tu parles d\u2019un miracle, pas d\u2019une réparation.',
-      },
-      {
-        label: 'Je préfère me souvenir d\u2019elle vivante.',
-        log: 'Sage décision. Son dernier bip était déjà un adieu.',
-      },
-    ],
-  },
-
-  npc_matt_reunion: {
-    id: 'npc_matt_reunion',
-    title: 'La réunion vide sous haute surveillance',
-    text:
-      'Urgence absolue ! Il faut sécuriser immédiatement la salle de réunion B12. '
-      + 'Elle est vide\u2026 mais d\u2019un vide hautement suspect.',
-    portrait: 'matt',
-    npcName: 'Chavalier Matt',
-    choices: [
-      {
-        label: 'Je vais vérifier la pièce.',
-        log: 'Magnifique. Si tu n\u2019y vois rien, c\u2019est que le danger est discret.',
-      },
-      {
-        label: 'Un vide suspect reste un vide.',
-        log: 'Erreur classique. C\u2019est exactement comme ça qu\u2019on se fait surprendre par l\u2019absence.',
-      },
-      {
-        label: 'As-tu essayé d\u2019y entrer toi-même ?',
-        log: 'Oui. J\u2019ai ressenti un silence inhabituellement structuré.',
-      },
-    ],
-  },
-
-  npc_matt_mug: {
-    id: 'npc_matt_mug',
-    title: 'Le mug en détresse',
-    text:
-      'Aventurier ! Un mug est resté seul en salle de pause depuis l\u2019aube. '
-      + 'Il n\u2019est ni lavé, ni revendiqué. '
-      + 'Il faut agir avant qu\u2019il ne choisisse un camp.',
-    portrait: 'matt',
-    npcName: 'Chavalier Matt',
-    choices: [
-      {
-        label: 'Je vais le déplacer en terrain neutre.',
-        log: 'Excellente initiative. La diplomatie par évier reste une valeur sûre.',
-      },
-      {
-        label: 'Je refuse de m\u2019impliquer dans ce conflit.',
-        log: 'Alors l\u2019histoire se souviendra de ton retrait.',
-      },
-      {
-        label: 'As-tu essayé de lui parler calmement ?',
-        log: 'Oui. Il n\u2019a répondu que par une odeur tiède.',
-      },
-    ],
-  },
-};
-
 // ── Chevalier Max (4 scènes) ──────────────────────────────────────────────────
 
-const MAX_EVENTS: Record<string, EventDef> = {
+export const NPC_EVENTS: Record<string, EventDef> = {
 
   npc_max_postit: {
     id: 'npc_max_postit',
@@ -228,11 +123,4 @@ const MAX_EVENTS: Record<string, EventDef> = {
       },
     ],
   },
-};
-
-// ── Export fusionné ────────────────────────────────────────────────────────────
-
-export const NPC_EVENTS: Record<string, EventDef> = {
-  ...MATT_EVENTS,
-  ...MAX_EVENTS,
 };

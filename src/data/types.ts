@@ -232,7 +232,7 @@ export interface EventDef {
    * When set, EventOverlay enters a two-phase flow:
    *   1. choices panel  2. NPC response + random reaction → dismiss.
    */
-  portrait?: 'matt' | 'max';
+  portrait?: 'max';
   /** Display name shown in the NPC portrait header. */
   npcName?: string;
 }

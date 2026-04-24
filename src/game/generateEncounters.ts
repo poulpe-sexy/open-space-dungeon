@@ -89,11 +89,9 @@ export const ZONE_POOLS: Record<string, ZonePool> = {
     // Zone II — first special enemies introduced (normal difficulty only).
     // client_blinde: tanky armoured (first encounter with armor mechanic).
     // client_moteur: self-buffs (learn to kill fast before ATK snowballs).
-    // NPC: Chavalier Matt apparaît ici (salles ~3-8).
     combat:  ['client_sceptique', 'client_exigeant', 'client_anxieux',
                'client_blinde', 'client_moteur'],
-    events:  ['coffee_machine', 'mystery_memo', 'slack_maudit', 'standup_eternel', 'comite_plantes',
-               'npc_matt_trombone', 'npc_matt_imprimante'],
+    events:  ['coffee_machine', 'mystery_memo', 'slack_maudit', 'standup_eternel', 'comite_plantes'],
     traps:   ['cable_snare', 'floor_shock', 'tunnel_validation',
                'chaise_roulettes', 'avalanche_postit', 'sol_cire', 'imprimante_infinie'],
     puzzles: ['coffee_order', 'cafe_quantique', 'frigo_maudit', 'mur_postit'],
@@ -102,11 +100,10 @@ export const ZONE_POOLS: Record<string, ZonePool> = {
   salles_reu: {
     // Zone III — debuffers start showing up (ATK & MAG sapping).
     // client_demoraliseur: drains ATK; client_lunatique: burst pattern.
-    // NPC: Matt (fin de ses scènes) + Max (début de ses scènes), salles ~6-11.
+    // NPC: Chevalier Max apparaît ici (salles ~6-11).
     combat:  ['client_exigeant', 'client_anxieux', 'client_chronophage',
                'client_blinde', 'client_demoraliseur', 'client_lunatique'],
     events:  ['mystery_memo', 'pep_talk', 'slack_maudit', 'standup_eternel',
-               'npc_matt_reunion', 'npc_matt_mug',
                'npc_max_postit', 'npc_max_chargeur'],
     traps:   ['cable_snare', 'floor_shock', 'reunion_infinie',
                'chaise_roulettes', 'avalanche_postit', 'neon_conformite',
@@ -159,7 +156,7 @@ interface RunContext {
   /**
    * Flipped to `true` the moment the first NPC event (prefix `npc_`) is
    * placed anywhere in the run. All subsequent calls filter out NPC events,
-   * guaranteeing that Matt or Max appears **exactly once** per run.
+   * guaranteeing that Chevalier Max appears **exactly once** per run.
    */
   npcPlaced: boolean;
 }
@@ -225,23 +222,6 @@ export function generateAllEncounters(
   const rng = makeRng(seed);
   const result: Record<string, ScreenEncounter[]> = {};
 
-  // ── NPC exclusivity — pick ONE NPC per run ───────────────────────────────
-  // Matt and Max must never cohabit the same run: their absurdist scenes lose
-  // impact if the player encounters both in a single playthrough.
-  // The seed-driven coin flip is deterministic: same seed → same NPC.
-  const npcThisRun: 'matt' | 'max' = rng() < 0.5 ? 'matt' : 'max';
-  const excludePrefix = npcThisRun === 'matt' ? 'npc_max_' : 'npc_matt_';
-
-  // Build filtered zone pools that only include the chosen NPC's events.
-  // Regular events (no npc_ prefix) are always kept.
-  const runPools: Record<string, ZonePool> = {};
-  for (const [zoneId, pool] of Object.entries(ZONE_POOLS)) {
-    runPools[zoneId] = {
-      ...pool,
-      events: pool.events.filter((id) => !id.startsWith(excludePrefix)),
-    };
-  }
-
   // Per-run riddle pool — shuffled once, popped as we place riddle encounters.
   // This guarantees each riddle appears AT MOST once per run (each unique
   // riddle grants a unique reward item, so duplicates would stack the same
@@ -262,7 +242,7 @@ export function generateAllEncounters(
       continue;
     }
 
-    const pool = runPools[screen.zoneId] ?? FALLBACK_POOL;
+    const pool = ZONE_POOLS[screen.zoneId] ?? FALLBACK_POOL;
     // Use the procedural shape for this run if provided, otherwise fall back
     // to the static layout.
     const tiles = shapes?.[screen.id] ?? screen.tiles;

@@ -268,7 +268,7 @@ export function TileDungeon() {
     resolved: boolean;
     isBoss: boolean;
     /** Set for NPC narrative events — drives the swordsman tile sprite. */
-    npcPortrait?: 'matt' | 'max';
+    npcPortrait?: 'max';
   };
   const encAt = new Map<string, EncInfo>();
   for (const enc of activeEncounters) {
@@ -279,7 +279,7 @@ export function TileDungeon() {
     const isBoss = enc.kind === 'combat' && !!enc.enemyId &&
       ENEMIES[enc.enemyId]?.difficulty === 'boss';
     const npcPortrait = enc.kind === 'event' && enc.eventId
-      ? (EVENTS[enc.eventId]?.portrait as 'matt' | 'max' | undefined)
+      ? (EVENTS[enc.eventId]?.portrait as 'max' | undefined)
       : undefined;
     encAt.set(`${enc.x},${enc.y}`, { kind: enc.kind, resolved, isBoss, npcPortrait });
   }
