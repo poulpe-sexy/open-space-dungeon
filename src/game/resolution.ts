@@ -23,9 +23,12 @@ export const THRESHOLDS: Record<Difficulty, number> = DIFFICULTY_THRESHOLDS;
 // ── Class bonuses ─────────────────────────────────────────────────────────────
 // Reflects each archetype's strengths across encounter types.
 export const CLASS_BONUS: Record<HeroClass, Record<ResolvableKind, number>> = {
-  Choc:   { combat: 3, trap: 1, puzzle: 0, event: 0 },
+  Choc:     { combat: 3, trap: 1, puzzle: 0, event: 0 },
   Roublard: { combat: 1, trap: 0, puzzle: 1, event: 2 },
-  Sage:   { combat: 0, trap: 0, puzzle: 3, event: 1 },
+  Sage:     { combat: 0, trap: 0, puzzle: 3, event: 1 },
+  // Sensei : solide en combat (discipline), bon en event (écoute active),
+  // mais fragile face aux pièges et aux puzzles abstraits.
+  Sensei:   { combat: 2, trap: 0, puzzle: 1, event: 2 },
 };
 
 // ── Stat bonus ────────────────────────────────────────────────────────────────
@@ -156,6 +159,12 @@ const ADVISOR_FLAVOR: Record<HeroClass, Record<ResolvableKind, string>> = {
     trap:    'Laurent proc\u00e8de m\u00e9thodiquement. R\u00e9sultat correct.',
     puzzle:  'Laurent est dans son domaine. Probabilit\u00e9 maximale.',
     event:   'Laurent \u00e9coute et analyse. Bon, sans \u00eatre brillant.',
+  },
+  Sensei: {
+    combat:  'Matthieu est disciplin\u00e9. Pas le plus offensif, mais solide.',
+    trap:    'Matthieu cherche la le\u00e7on dans le pi\u00e8ge. Pas toujours \u00e0 temps.',
+    puzzle:  'Matthieu approche le probl\u00e8me avec m\u00e9thode. Correct.',
+    event:   'Matthieu \u00e9coute, reformule, trouve l\u2019accord. Son terrain naturel.',
   },
 };
 

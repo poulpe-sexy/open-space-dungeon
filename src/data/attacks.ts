@@ -106,6 +106,39 @@ export const ATTACKS: Record<string, Attack> = {
     description: "Slide 42. Animation. La salle s'effondre en applaudissements. Recharge nécessaire.",
   },
 
+  // --- Matthieu / Sensei (T1/T2 physical, T3 magic — kit hybride) ----------
+  // Légèrement moins puissant que les autres à niveau égal, mais Matthieu
+  // compense par son bonus d'XP Kaizen (×1.3 après chaque combat).
+  reframe: {
+    id: 'reframe',
+    name: 'Reframe',
+    kind: 'physical',
+    tier: 1,
+    power: 0.9,
+    cost: 0,
+    mpGain: T1_MP_GAIN,
+    description: "Tu retournes le problème. Pas très fort, mais il repart dans le bon sens — et récupère 1 MP.",
+  },
+  challenge: {
+    id: 'challenge',
+    name: 'Challenge',
+    kind: 'physical',
+    tier: 2,
+    power: 1.4,
+    cost: 2,
+    description: "Tu pousses l'adversaire hors de sa zone de confort. Ça fait mal, surtout à l'ego.",
+  },
+  jai_appele_le_client: {
+    id: 'jai_appele_le_client',
+    name: "J'ai appelé le client, tout est arrangé",
+    kind: 'magic',
+    tier: 3,
+    power: 2.0,
+    cost: 6,
+    cooldown: T3_COOLDOWN,
+    description: "Un coup de fil. Deux phrases. L'ennemi ne sait plus pourquoi il se battait. Temps de recharge nécessaire.",
+  },
+
   // --- Laurent / Sage (all magic, scales MAG 9, deep MP pool) --------------
   apnee: {
     id: 'apnee',

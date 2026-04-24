@@ -46,6 +46,17 @@ export const HEROES: Record<HeroId, Hero> = {
     tag: "Mage redoutable, dont les savoirs font trembler l'architecture même du donjon.",
     attacks: ['apnee', 'figuier_etrangleur', 'decommissionnement'],
   },
+  matthieu: {
+    id: 'matthieu',
+    name: 'MATTHIEU',
+    className: 'Sensei',
+    stats: { atk: 4, mag: 4, hp: 16 },
+    portrait: HERO_PORTRAITS.matthieu,
+    tint: HERO_TINT.matthieu,
+    tag: "Grâce au Kaizen, il progresse en continu. Moins impressionnant de prime abord, il apprend plus vite que les autres.",
+    attacks: ['reframe', 'challenge', 'jai_appele_le_client'],
+    xpBonus: 1.3,
+  },
 };
 
 export const HEROES_LIST: Hero[] = Object.values(HEROES);

@@ -18,13 +18,14 @@ const BASE = import.meta.env.BASE_URL;
 /** Prefixes a relative asset path (no leading slash) with the current base URL. */
 export const asset = (path: string): string => `${BASE}${path}`;
 
-export const HERO_ID = ['marine', 'alphonse', 'laurent'] as const;
+export const HERO_ID = ['marine', 'alphonse', 'laurent', 'matthieu'] as const;
 export type HeroId = (typeof HERO_ID)[number];
 
 export const HERO_PORTRAITS: Record<HeroId, string> = {
-  marine: asset('assets/characters/MARINE.png'),
+  marine:   asset('assets/characters/MARINE.png'),
   alphonse: asset('assets/characters/ALPHONSE.png'),
-  laurent: asset('assets/characters/LAURENT.png'),
+  laurent:  asset('assets/characters/LAURENT.png'),
+  matthieu: asset('assets/characters/MATTHIEU.png'),
 };
 
 /**
@@ -32,9 +33,10 @@ export const HERO_PORTRAITS: Record<HeroId, string> = {
  * missing (HeroPortrait falls back to initial + tint).
  */
 export const HERO_TINT: Record<HeroId, string> = {
-  marine: '#ff7a4d',
+  marine:   '#ff7a4d',
   alphonse: '#63c6ff',
-  laurent: '#c78cff',
+  laurent:  '#c78cff',
+  matthieu: '#56b884', // vert jade — Kaizen, progression, croissance
 };
 
 /** Title logo displayed on the intro + title screens. Text fallback if missing. */

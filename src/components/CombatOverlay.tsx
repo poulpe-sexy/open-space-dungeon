@@ -394,19 +394,26 @@ export function CombatOverlay() {
 
       // ── Apply XP & chained level-ups ─────────────────────────────────────
       const s0 = store.get();
+      // Matthieu (Sensei) gains 30 % more XP via xpBonus — Kaizen mechanic.
+      // Round to keep numbers clean in the UI.
+      const xpMultiplier  = s0.hero!.xpBonus ?? 1;
+      const effectiveXp   = Math.round(enemy.rewardXp * xpMultiplier);
       const result = applyXpGain(
         s0.hero!,
         s0.level,
         s0.xp,
         s0.maxHp,
         s0.maxMp,
-        enemy.rewardXp,
+        effectiveXp,
       );
 
       setLog((l) => {
+        const xpLabel = xpMultiplier > 1
+          ? `+${effectiveXp} XP (×${xpMultiplier} Kaizen)`
+          : `+${enemy.rewardXp} XP`;
         const lines: LogLine[] = [
           ...l,
-          { kind: 'info', text: `${enemy.name} est neutralisé. +${enemy.rewardXp} XP.` },
+          { kind: 'info', text: `${enemy.name} est neutralisé. ${xpLabel}.` },
         ];
         if (result.levelsGained > 0) {
           lines.push({

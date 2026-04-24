@@ -14,7 +14,7 @@ export interface Stats {
 }
 
 // ---------- Classes ------------------------------------------------------------
-export type HeroClass = 'Choc' | 'Roublard' | 'Sage';
+export type HeroClass = 'Choc' | 'Roublard' | 'Sage' | 'Sensei';
 
 export interface ClassDef {
   id: HeroClass;
@@ -53,7 +53,7 @@ export interface Attack {
 }
 
 // ---------- Heroes -------------------------------------------------------------
-export type HeroId = 'marine' | 'alphonse' | 'laurent';
+export type HeroId = 'marine' | 'alphonse' | 'laurent' | 'matthieu';
 
 export interface Hero {
   id: HeroId;
@@ -65,6 +65,12 @@ export interface Hero {
   /** Attack ids, ordered ascending by tier / power. */
   attacks: readonly [string, string, string];
   tint: string;
+  /**
+   * XP multiplier applied after a combat win (Matthieu's Kaizen bonus).
+   * Absent on all other heroes (treated as 1.0 — no bonus).
+   * Only affects combat XP; events/traps/puzzles grant no XP regardless.
+   */
+  xpBonus?: number;
 }
 
 // ---------- Enemies ------------------------------------------------------------

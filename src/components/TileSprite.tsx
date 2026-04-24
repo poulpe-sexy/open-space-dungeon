@@ -52,6 +52,7 @@ const PLAYER_SPRITE: Record<HeroClass, string> = {
   Choc:     `${A}/player_choc.png`,    // Marine   — Choc
   Roublard: `${A}/player_classe.png`,  // Alphonse — Roublard (filename kept for asset stability)
   Sage:     `${A}/player_sage.png`,    // Laurent  — Sage
+  Sensei:   `${import.meta.env.BASE_URL}assets/characters/MATTHIEU.png`, // Matthieu — Sensei
 };
 
 // ── Component ────────────────────────────────────────────────────────────────
