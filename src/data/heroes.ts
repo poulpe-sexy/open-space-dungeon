@@ -53,7 +53,7 @@ export const HEROES: Record<HeroId, Hero> = {
     stats: { atk: 4, mag: 4, hp: 16 },
     portrait: HERO_PORTRAITS.matthieu,
     tint: HERO_TINT.matthieu,
-    tag: "Grâce au Kaizen, il progresse en continu. Moins impressionnant de prime abord, il apprend plus vite que les autres.",
+    tag: "Avec le pouvoir du Kaizen, il transforme chaque combat en opportunité d'apprentissage.",
     attacks: ['reframe', 'challenge', 'jai_appele_le_client'],
     xpBonus: 1.3,
   },
