@@ -25,7 +25,7 @@ export const HERO_PORTRAITS: Record<HeroId, string> = {
   marine:   asset('assets/characters/MARINE.png'),
   alphonse: asset('assets/characters/ALPHONSE.png'),
   laurent:  asset('assets/characters/LAURENT.png'),
-  matthieu: asset('assets/characters/MATTHIEU.png'),
+  matthieu: asset('assets/characters/MATTHIEU_portrait.png'),
 };
 
 /**
