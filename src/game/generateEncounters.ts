@@ -100,7 +100,7 @@ export const ZONE_POOLS: Record<string, ZonePool> = {
   salles_reu: {
     // Zone III — debuffers start showing up (ATK & MAG sapping).
     // client_demoraliseur: drains ATK; client_lunatique: burst pattern.
-    // NPC: Chevalier Max apparaît ici (salles ~6-11).
+    // NPC: Seigneur Maxilowicz apparaît ici (salles ~6-11).
     combat:  ['client_exigeant', 'client_anxieux', 'client_chronophage',
                'client_blinde', 'client_demoraliseur', 'client_lunatique'],
     events:  ['mystery_memo', 'pep_talk', 'slack_maudit', 'standup_eternel',
@@ -113,7 +113,7 @@ export const ZONE_POOLS: Record<string, ZonePool> = {
   },
   technique: {
     // Zone IV — harder specials: MAG brouilleur, vampirique drain.
-    // NPC: Chevalier Max (salles ~9-13).
+    // NPC: Seigneur Maxilowicz (salles ~9-13).
     combat:  ['client_fantome', 'client_zen', 'client_anxieux',
                'client_brouilleur', 'client_vampirique'],
     events:  ['mystery_memo', 'slack_maudit', 'standup_eternel',
@@ -156,7 +156,7 @@ interface RunContext {
   /**
    * Flipped to `true` the moment the first NPC event (prefix `npc_`) is
    * placed anywhere in the run. All subsequent calls filter out NPC events,
-   * guaranteeing that Chevalier Max appears **exactly once** per run.
+   * guaranteeing that Seigneur Maxilowicz appears **exactly once** per run.
    */
   npcPlaced: boolean;
 }

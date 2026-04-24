@@ -228,7 +228,7 @@ export interface EventDef {
   /**
    * NPC narrative events only. Identifies which swordsman spritesheet to use.
    * 'matt' → swordsman_matt.png (Swordsman lvl1 — Chavalier Matt).
-   * 'max'  → swordsman_max.png  (Swordsman lvl3 — Chevalier Max).
+   * 'max'  → swordsman_max.png  (Swordsman lvl3 — Seigneur Maxilowicz).
    * When set, EventOverlay enters a two-phase flow:
    *   1. choices panel  2. NPC response + random reaction → dismiss.
    */

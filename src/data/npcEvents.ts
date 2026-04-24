@@ -1,5 +1,5 @@
 /**
- * Événements narratifs NPC — Chevalier Max
+ * Événements narratifs NPC — Seigneur Maxilowicz
  *
  * Ces événements sont purement narratifs : aucun effet sur les PV/MP/XP.
  * Ils utilisent le flux à deux phases de EventOverlay (choix → réponse).
@@ -24,7 +24,7 @@ export const NPC_REACTIONS: readonly string[] = [
   'Le problème demeure entier, mais avec davantage de solennité.',
 ];
 
-// ── Chevalier Max (4 scènes) ──────────────────────────────────────────────────
+// ── Seigneur Maxilowicz (4 scènes) ──────────────────────────────────────────────────
 
 export const NPC_EVENTS: Record<string, EventDef> = {
 
@@ -35,7 +35,7 @@ export const NPC_EVENTS: Record<string, EventDef> = {
       'Vite ! Ce post-it doit rejoindre sa destinée avant la fin du cycle ! '
       + 'Je ne sais pas où il va, mais il y va intensément.',
     portrait: 'max',
-    npcName: 'Chevalier Max',
+    npcName: 'Seigneur Maxilowicz',
     choices: [
       {
         label: 'Donne-moi le post-it.',
@@ -59,7 +59,7 @@ export const NPC_EVENTS: Record<string, EventDef> = {
       'C\u2019est une crise logistique ! Il nous faut le dernier chargeur digne de ce nom ! '
       + 'Tous les autres ne transmettent que du courant sans conviction.',
     portrait: 'max',
-    npcName: 'Chevalier Max',
+    npcName: 'Seigneur Maxilowicz',
     choices: [
       {
         label: 'Je vais chercher près des prises.',
@@ -83,7 +83,7 @@ export const NPC_EVENTS: Record<string, EventDef> = {
       'Regarde ! Cette plante verte n\u2019est plus alignée avec la vision du royaume ! '
       + 'Si personne n\u2019intervient, elle pourrait pencher idéologiquement.',
     portrait: 'max',
-    npcName: 'Chevalier Max',
+    npcName: 'Seigneur Maxilowicz',
     choices: [
       {
         label: 'Je vais la réaligner.',
@@ -107,7 +107,7 @@ export const NPC_EVENTS: Record<string, EventDef> = {
       'Situation critique ! Le mot de passe a été oublié, mais il reste valide. '
       + 'Nous sommes donc verrouillés par quelque chose qui fonctionne parfaitement.',
     portrait: 'max',
-    npcName: 'Chevalier Max',
+    npcName: 'Seigneur Maxilowicz',
     choices: [
       {
         label: 'Essayons les évidences.',
