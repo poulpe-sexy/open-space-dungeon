@@ -55,7 +55,7 @@ export const HEROES: Record<HeroId, Hero> = {
     tint: HERO_TINT.matthieu,
     tag: "Avec le pouvoir du Kaizen, il transforme chaque combat en opportunité d'apprentissage.",
     attacks: ['reframe', 'challenge', 'jai_appele_le_client'],
-    xpBonus: 1.3,
+    xpBonus: 1.6,
   },
 };
 
