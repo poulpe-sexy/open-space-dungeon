@@ -9,6 +9,7 @@
   --choc: #ff7a4d;
   --classe: #63c6ff;
   --sage: #c78cff;
+  --sensei: #56b884;
 
   /* Zone palette */
   --zone-accueil:   #e8b84b;
@@ -262,9 +263,24 @@ span.title-logo {
 }
 .hero-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 .hero-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
-.hero-card[data-class="Choc"]   { border-left: 6px solid var(--choc); }
+.hero-card[data-class="Choc"]     { border-left: 6px solid var(--choc); }
 .hero-card[data-class="Roublard"] { border-left: 6px solid var(--classe); }
-.hero-card[data-class="Sage"]   { border-left: 6px solid var(--sage); }
+.hero-card[data-class="Sage"]     { border-left: 6px solid var(--sage); }
+/* Matthieu s'étale sur toute la largeur de la grille en mode paysage */
+.hero-card[data-class="Sensei"] {
+  border-left: 6px solid var(--sensei, #56b884);
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+.hero-card[data-class="Sensei"] .hero-portrait {
+  width: 110px;
+  flex-shrink: 0;
+}
+.hero-card[data-class="Sensei"] .hero-tag {
+  flex: 1;
+}
 
 .hero-portrait {
   width: 100%;
