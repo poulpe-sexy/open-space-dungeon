@@ -36,6 +36,6 @@ export const CLASSES: Record<HeroClass, ClassDef> = {
     role: 'Progression / Kaizen',
     color: '#56b884',
     description:
-      'Stats modestes au départ, mais gagne +30 % d\'XP après chaque combat. Monte en puissance plus vite que les autres.',
+      'Avec le pouvoir du Kaizen, il transforme chaque combat en opportunité d\'apprentissage.',
   },
 };
