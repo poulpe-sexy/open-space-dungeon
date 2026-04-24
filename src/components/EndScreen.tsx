@@ -44,7 +44,7 @@ export function EndScreen() {
       <div className="end-screen defeat">
         <h2>BURN-OUT</h2>
         <p>
-          Les tickets ont eu raison de toi. Une réunion rétro s’organise déjà
+          Les tickets ont eu raison de toi. Une réunion rétro s'organise déjà
           sans toi.
         </p>
         <button type="button" onClick={() => store.reset()}>
@@ -54,23 +54,23 @@ export function EndScreen() {
     );
   }
 
-  // ── Normal victory (with optional secret hint) ──────────────────────────
+  // ── Normal victory (teasing always visible, secret button conditional) ──
   if (phase === 'victory') {
     return (
       <div className="end-screen victory">
         <h2>DOSSIER CLASSÉ SANS SUITE</h2>
         <p>
-          L’Administration a été contresignée, paraphée, archivée. Les guichets
-          ferment. Les imprimantes s’apaisent. L’open space respire — pour la
+          L'Administration a été contresignée, paraphée, archivée. Les guichets
+          ferment. Les imprimantes s'apaisent. L'open space respire — pour la
           première fois depuis des générations de stagiaires.
         </p>
+        <p className="end-secret-hint">
+          {SECRET_HINT}
+        </p>
         {secretUnlocked ? (
-          <>
-            <p className="end-secret-hint">{SECRET_HINT}</p>
-            <button type="button" onClick={() => store.set({ phase: 'secret-intro' })}>
-              Affronter la menace
-            </button>
-          </>
+          <button type="button" onClick={() => store.set({ phase: 'secret-intro' as const })}>
+            Affronter la menace
+          </button>
         ) : (
           <button type="button" onClick={() => store.reset()}>
             Recommencer une run
